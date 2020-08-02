@@ -2,7 +2,7 @@ const router = require('express').Router();
 const {User} = require('../../models/User')
 
 const {auth} = require('../../containers/auth/auth')
-const a = 1;
+
 // TODO: make container/auth/checkUser.js
 router.get('/register', (req, res)=>{
   const user = new User(req.body);
