@@ -1,19 +1,22 @@
 const {User} = require("../../models/User");
-let authToken = (req, res, next)=>{
+const AuthContainer = require('typedi').Container;
+
+
+let authUser = (req, res, next)=>{
 
   let token = req.cookies.x_pla;
 
-  User.findByToken(token, (err, user)=>{
+  User.findVerifiedUser(token, (err, user)=>{
     if(err) throw err;
-    if(!user) return res.json({ isAuth:false, error: true});
+    if(!user) return res.json({ isAuth:false, err:"invalid Token or already not check auth email"});
 
     req.token = token;
     req.user = user;
-
     next();
   })
 }
 
-l
+AuthContainer.set("auth.User", authUser);
 
-module.exports = { auth };
+
+module.exports = { AuthContainer };

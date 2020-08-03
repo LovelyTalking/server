@@ -1,6 +1,6 @@
-const moment = required('moment');
+const moment = require('moment');
 
-class IUser{
+class IUserDTO{
   constructor(userInfo)
   {
     this._id = userInfo._id;
@@ -10,6 +10,7 @@ class IUser{
     this.native_language = userInfo.native_language;
     this.target_language = userInfo.target_language;
     this.gender = userInfo.gender;
+    this.auth_email_verified = userInfo.auth_email_verified;
     this.auth_email_key = userInfo.auth_email_key;
     this.profile_image = userInfo.profile_image;
     this.profile_text = userInfo.profile_text;
@@ -23,7 +24,7 @@ class IUser{
   }
 
   get getRegisterUserInfo(){
-    return register_data = {
+    return {
         email : this.email,
         name : this.name,
         password: this.password,
@@ -31,7 +32,11 @@ class IUser{
         native_language: this.native_language,
         target_language: this.target_language,
         gender :  this.gender,
+        auth_email_verified: this.auth_email_verified,
+        auth_email_key: this.auth_email_key,
         register_date : moment().format()
     }
   }
 }
+
+module.exports= IUserDTO

@@ -1,7 +1,5 @@
 const mongoose = require('../configs/mongo.db.js');
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const jwt = require('jsonwebtoken');
+const userCtrl = require('../containers/models/user.model.service')
 
 const userSchema = mongoose.Schema({
   email:{
@@ -38,8 +36,15 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  auth_email_verified:{
+    type:Boolean,
+    required:true,
+    default: false
+  },
   auth_email_key:{
-    type: String
+    type: String,
+    required: true,
+    default:"needs"
   },
   profile_image:{
     type: String,
@@ -75,53 +80,11 @@ const userSchema = mongoose.Schema({
 })
 
 
-userSchema.pre('save', (next)=>{
-  let user = this;
-
-  if(user.isModified('password')){
-    
-    bcrypt.genSalt(saltRounds, (err,salt)=>{
-      if(err) return next(err);
-
-      bcrypt.hash(user.password, salt, (err, hash) =>{
-        if(err) return next(err);
-        user.password = hash;
-        next();
-      })
-    })
-  }else{
-    next();
-  }
-})
-
-userSchema.methods.comparePassword = (plainPass, cb)=>{
-  bcrypt.compare(plainPass, this.password, (err, isMatch)=>{
-    if(err) return cb(err);
-    cn(null, isMatch);
-  })
-}
-
-userSchema.methods.generateToken = (cb)=>{
-  let user = this;
-  let token = jwt.sign(user._id.toHexString(), 'secretToken');
-
-  user.token = token;
-  user.save((err,user)=>{
-      if(err) return cb(err);
-      cn(null, user);
-  })
-}
-
-userSchema.statics.findByToken = (token, cb)=>{
-  let user= this;
-
-  jwt.verify(token, 'secretToken', (err,decoded)=>{
-    user.findOne({"_id" :decoded, "token": token}, (err,user)=>{
-      if(err) return cb(err);
-      cb(null, user);
-    })
-  })
-}
+userSchema.pre('save', userCtrl.cryptPassword);
+userSchema.methods.comparePassword = userCtrl.comparePassword;
+userSchema.methods.generateToken = userCtrl.generateToken;
+userSchema.statics.findByToken = userCtrl.findByToken;
+userSchema.statics.findVerifiedUser = userCtrl.findVerifiedUser;
 
 const User = mongoose.model('User', userSchema);
 module.exports = {User};
