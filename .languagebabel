@@ -1,0 +1,9 @@
+{
+  "transpileOnSave":true,
+  "createTranspiledCode": true,
+  "disableWhenNoBabelrcFileInPath": true,
+  "suppressTranspileOnSaveMessages": true,
+  "createMap": true,
+  "babelMapsAddUrl": true,
+  "projectRoot": true
+}

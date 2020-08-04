@@ -23,12 +23,18 @@ class IUserDTO{
     this.badges = userInfo.badges;
   }
 
-  get getRegisterUserInfo(){
+  set UserInfo(value){
+    this.userInfo = value;
+  }
+  get UserInfo(){
+    return userInfo;
+  }
+
+  get RegisterUserInfo(){
     return {
         email : this.email,
         name : this.name,
         password: this.password,
-        profile_image : this.profile_image,
         native_language: this.native_language,
         target_language: this.target_language,
         gender :  this.gender,

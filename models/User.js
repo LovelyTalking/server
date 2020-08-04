@@ -48,8 +48,7 @@ const userSchema = mongoose.Schema({
   },
   profile_image:{
     type: String,
-    maxLength: 200,
-    required : true
+    maxLength: 200
   },
   profile_text:{
     type: String,
