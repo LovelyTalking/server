@@ -12,7 +12,7 @@ const registerUser = (req, res)=>{
     if(err)
       return res.status(400).json({register_success: false, err});
 
-    authmailConfig(req, user);
+    authMailConfig(req, user);
     return res.status(200).json({
       register_success: true,
       register_auth : false
@@ -56,7 +56,7 @@ const checkVerifyAuthEmail = (req,res)=>{
 }
 
 const loginUser = (req,res)=>{
-  if(!req.body)
+  if(!req.body.email)
     return res.status(400).json({
       login_success : false,
       err: "요청 데이터 객체가 비어있습니다"
@@ -74,13 +74,13 @@ const loginUser = (req,res)=>{
       if(!isMatch)
         return res.status(200).json({
           login_success: false,
-          err: err
+          err: "매치 되는 비밀번호가 없습니다."
         });
 
       user.generateToken((err, user)=>{
         if(err) return res.status(400).send({
           login_success: false,
-          err: err
+          err: "토큰 생성에 실패했습니다."
         });
 
         res.cookie("x_pla", user.token)
@@ -95,19 +95,10 @@ const loginUser = (req,res)=>{
 }
 
 const sendIsAuth = (req,res)=>{
-  res.status(200).json({
-    _id: req.user._id,
-    //isAdmin: req.user.role === 0? false : true,
-    isAuth: true,
-    email: req.user.email,
-    name: req.user.name,
-    profile_image: req.user.profile_image,
-    profile_text: req.user.profile_text,
-    native_language: req.user.native_language,
-    target_language: req.user.target_language,
-    post_count: req.user.post_count,
-    badges: req.user.badges
-  })
+  const user = new IUserDTO(req.user).getAuthInfo();
+  console.log('auth user info '+ user);
+
+  res.status(200).json(user);
 }
 
 module.exports = {

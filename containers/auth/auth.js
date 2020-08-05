@@ -8,7 +8,7 @@ let authUser = (req, res, next)=>{
 
   User.findVerifiedUser(token, (err, user)=>{
     if(err) throw err;
-    if(!user) return res.json({ isAuth:false, err:"invalid Token or already not check auth email"});
+    if(!user) return res.json({ auth_succes :false, err: "매치되는 유저가 없습니다"});
 
     req.token = token;
     req.user = user;

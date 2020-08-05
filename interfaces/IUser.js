@@ -80,6 +80,21 @@ class IUserDTO{
         register_date : moment().format()
     }
   }
+
+  getAuthInfo(){
+    return {
+      isAuth: true,
+      _id: this._id,
+      email : this.email,
+      name : this.name,
+      native_language: this.native_language,
+      target_language: this.target_language,
+      gender :  this.gender,
+      profile_image : this.profile_image,
+      profile_text : this.profile_text,
+      post_count : this.post_count
+    }
+  }
 }
 
 module.exports= IUserDTO
