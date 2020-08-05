@@ -77,7 +77,9 @@ class IUserDTO{
         gender :  this.gender,
         auth_email_verified: this.auth_email_verified,
         auth_email_key: this.auth_email_key,
-        register_date : moment().format()
+        register_date : moment().format(),
+        post_count : 0,
+        del_ny : false
     }
   }
 

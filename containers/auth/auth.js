@@ -8,7 +8,7 @@ let authUser = (req, res, next)=>{
 
   User.findVerifiedUser(token, (err, user)=>{
     if(err) throw err;
-    if(!user) return res.json({ auth_succes :false, err: "매치되는 유저가 없습니다"});
+    if(!user) return res.status(400).json({ auth_succes :false, err: "매치되는 유저가 없습니다"});
 
     req.token = token;
     req.user = user;
