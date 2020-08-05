@@ -5,7 +5,7 @@ const path = require('path');
 
 dotenv.config({path: __dirname+"../.env"});
 
-module.exports = function(req, user){
+const authMailConfig = function(req, user){
   const host_email = process.env.HOST_EMAIL;
   const password = process.env.HOST_EMAIL_PASSWORD;
 
@@ -34,3 +34,4 @@ module.exports = function(req, user){
     smtpTransport.close();
   })
 }
+module.exports = authMailConfig;

@@ -1,43 +1,20 @@
 const {User} = require('../../models/User')
 const IUserDTO = require('../../interfaces/IUser');
-//@desc TODO: After import EventEmitter , use event for service class
-const EventEmitter = require('events').EventEmitter;
-const eventEmitter = new EventEmitter();
-
-export class UserService {
-  signup(req, res){
-    return eventEmitter.emit('user_signup',req, res);
-  }
-
-}
-
-// @desc TODO: 지금 이벤트를 활용한 회원가입 유저를 실시해본다
-eventEmitter.on('user_signup',(req,res)=>{
-  const userInfo = new IUserDTO(req.body).getRegisterUserInfo;
-  const user = new User(userInfo);
-
-  user.save((err,userInfo)=>{
-    if(err) return res.status(400).json({success: false, err});
-
-    require('../../configs/nodemailer')(req, user);
-    return res.status(200).json({
-      success: true,
-      register_auth : false
-    });
-  });
-})
+const authMailConfig = require('../../configs/nodemailer');
 
 const registerUser = (req, res)=>{
 
-  const userInfo = new IUserDTO(req.body).getRegisterUserInfo;
+  const userInfo = new IUserDTO(req.body).getRegisterUserInfo();
   const user = new User(userInfo);
 
   user.save((err,userInfo)=>{
-    if(err) return res.status(400).json({success: false, err});
+    console.log(userInfo);
+    if(err)
+      return res.status(400).json({register_success: false, err});
 
-    require('../../configs/nodemailer')(req, user);
+    authmailConfig(req, user);
     return res.status(200).json({
-      success: true,
+      register_success: true,
       register_auth : false
     });
   });
@@ -52,8 +29,7 @@ const checkDuplicateEmailName = (req, res)=>{
     });
   }
 
-  userInfo = new IUserDTO(req.params);
-  User.findOne({email:userInfo.email},(err,user)=>{
+  User.findOne({email:req.params.email},(err,user)=>{
     if(!user){
       return res.status(200).json({
         check_email_id:true
@@ -70,34 +46,49 @@ const checkDuplicateEmailName = (req, res)=>{
 
 const checkVerifyAuthEmail = (req,res)=>{
 	User.updateOne({auth_email_key:req.query.key},{$set:{auth_email_verified:true}}, function(err,user){
-		if(err) console.log(err);
-		else if(!user) res.status(400).json({ verify_success: false , err: "no matched user" });
-		else res.status(200).json({ verify_success: true });
+		if(err)
+      console.log(err);
+		else if(!user)
+      res.status(400);
+		else
+      res.status(200).redirect('/');
 	});
 }
 
 const loginUser = (req,res)=>{
+  if(!req.body)
+    return res.status(400).json({
+      login_success : false,
+      err: "요청 데이터 객체가 비어있습니다"
+    });
 
   User.findOne({email:req.body.email},(err,user)=>{
     if(!user){
       return res.status(400).json({
-        loginSuccess: false,
-        message: "제공된 이메일에 해당하는 유저가 없습니다."
+        login_success: false,
+        err: err
       })
     }
 
     user.comparePassword(req.body.password, (err, isMatch)=>{
       if(!isMatch)
         return res.status(200).json({
-          loginSuccess: false, message: "비밀번호가 틀렸습니다."
+          login_success: false,
+          err: err
         });
 
       user.generateToken((err, user)=>{
-        if(err) return res.status(400).send(err);
+        if(err) return res.status(400).send({
+          login_success: false,
+          err: err
+        });
 
         res.cookie("x_pla", user.token)
           .status(200)
-          .json({ loginSuccess: true, userId: user._id});
+          .json({
+            login_success: true,
+            user_id: user._id
+          });
       })
     });
   })

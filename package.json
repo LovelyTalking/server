@@ -4,7 +4,8 @@
   "description": "this is PLaCon Server, PLaCon(Play LAnguage Concert) is SNS service for people that hoped to study other country language ",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha specs/users/user.spec.js"
+    "test": "NODE_ENV=test mocha specs/users/user.spec.js",
+    "start": "nodemon --exec babel-node index.js"
   },
   "keywords": [],
   "author": "",
