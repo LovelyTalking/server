@@ -97,6 +97,33 @@ class IUserDTO{
       post_count : this.post_count
     }
   }
+
+  getUploadImageInfo(){
+    return {
+      _id: this._id,
+      profile_image: this.profile_image,
+      update_date: moment().format()
+    }
+  }
+
+  getUploadTextInfo(){
+    return {
+      _id: this._id,
+      profile_text : this.profile_text,
+      update_date: moment().format()
+    }
+  }
+
+  getUpdateUserInfo(){
+    return{
+      _id: this._id,
+      name: this.name,
+      native_language: this.native_language,
+      target_language: this.target_language,
+      gender: this.gender,
+      update_date: moment().format()
+    }
+  }
 }
 
 module.exports= IUserDTO

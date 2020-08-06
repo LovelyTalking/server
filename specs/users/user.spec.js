@@ -9,7 +9,7 @@ const should = require('should');
 */
 describe(' POST /users/upload/image ->', () =>{
   let req_body = {
-    _id: 1,
+    _id: "5f2a7734b5d2962355ce5ff4",
     profile_image: "./server/id/imgName"
   }
   describe('case success : ',()=>{
@@ -17,7 +17,7 @@ describe(' POST /users/upload/image ->', () =>{
     let body
     before(done=>{
       request(app)
-        .post('/routes/users/abc@naver.com')
+        .post('/routes/users/)
         .send(req_body)
         .expect(200)
         .end((err,res)=>{

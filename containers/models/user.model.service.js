@@ -1,36 +1,34 @@
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
-
+const IUserDTO = require('../../interfaces/IUser')
 
 const cryptPassword = function(next){
-  let user = this;
-  //console.log(user);
-  if(user.isModified('password')){
+  let user = new IUserDTO(this).UserInfo;
 
+  if(user.isModified('password')){
     bcrypt.genSalt(saltRounds, (err,salt)=>{
       if(err) return next(err);
-      console.log(1);
+
       bcrypt.hash(user.password, salt, (err, hash) =>{
         if(err) return next(err);
-        console.log(2);
         user.password = hash;
 
-        bcrypt.hash(user.email, salt, (err,hash)=>{
-          console.log(3);
-          if(err) return next(err);
-          user.auth_email_key = hash;
-            next();
-        })
+        cryptEmail(user, salt, next);
       })
-
-
     })
   }else{
     next();
   }
 };
 
+const cryptEmail = function(user, salt, next){
+  bcrypt.hash(user.email, salt, (err,hash)=>{
+    if(err) return next(err);
+    user.auth_email_key = hash;
+      next();
+  })
+}
 
 const comparePassword = function(plainPass, cb){
   bcrypt.compare(plainPass, this.password, (err, isMatch)=>{
@@ -41,7 +39,7 @@ const comparePassword = function(plainPass, cb){
 
 
 const generateToken = function(cb){
-  let user = this;
+  let user = new IUserDTO(this).UserInfo;
   let token = jwt.sign(user._id.toHexString(), 'secretToken');
 
   user.token = token;
@@ -53,7 +51,7 @@ const generateToken = function(cb){
 
 
 const findByToken = function(token, cb){
-  const user= this;
+  let user = new IUserDTO(this).UserInfo;
 
   jwt.verify(token, 'secretToken', (err,decoded)=>{
     user.findOne({"_id" :decoded, "token": token}, (err,user)=>{
@@ -65,7 +63,7 @@ const findByToken = function(token, cb){
 
 
 const findVerifiedUser = function(token, cb){
-  const user= this;
+  let user = new IUserDTO(this).UserInfo;
 
   jwt.verify(token, 'secretToken', (err,decoded)=>{
     user.findOne({"_id" :decoded, "token": token, "auth_email_verified":true}, (err,user)=>{
