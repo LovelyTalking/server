@@ -17,7 +17,7 @@ const userSchema = mongoose.Schema({
   password:{
     type: String,
     minLength: 8,
-    maxLength: 50,
+    maxLength: 25,
     required: true
   },
   native_language:{
@@ -71,7 +71,8 @@ const userSchema = mongoose.Schema({
     type: String
   },
   del_ny:{
-    type: Boolean
+    type: Boolean,
+    default : false
   },
   badges:{
     type: String
@@ -79,9 +80,10 @@ const userSchema = mongoose.Schema({
 })
 
 
-userSchema.pre('save', userCtrl.cryptPassword);
+userSchema.pre('save', userCtrl.cryptPasswordAndEmail);
 userSchema.methods.comparePassword = userCtrl.comparePassword;
 userSchema.methods.generateToken = userCtrl.generateToken;
+userSchema.methods.updatePassword = userCtrl.updatePassword;
 userSchema.statics.findByToken = userCtrl.findByToken;
 userSchema.statics.findVerifiedUser = userCtrl.findVerifiedUser;
 

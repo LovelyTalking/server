@@ -3,8 +3,8 @@ const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const IUserDTO = require('../../interfaces/IUser')
 
-const cryptPassword = function(next){
-  let user = new IUserDTO(this).UserInfo;
+const cryptPasswordAndEmail = function(next){
+  let user = this;
 
   if(user.isModified('password')){
     bcrypt.genSalt(saltRounds, (err,salt)=>{
@@ -18,6 +18,7 @@ const cryptPassword = function(next){
       })
     })
   }else{
+
     next();
   }
 };
@@ -30,6 +31,23 @@ const cryptEmail = function(user, salt, next){
   })
 }
 
+const updatePassword = function(new_password,update_date, cb){
+  let user = this;
+  bcrypt.genSalt(saltRounds, (err,salt)=>{
+    if(err) return cb(err);
+
+    bcrypt.hash(new_password, salt, (err, hash)=>{
+      if(err) return cb(err);
+      user.update({$set: {password:hash, update_date: update_date }}, (err,updated_user)=>{
+        if(err) cb(err);
+        if(!updated_user) cb(null, false);
+        cb(null,true);
+      })
+    })
+  })
+
+};
+
 const comparePassword = function(plainPass, cb){
   bcrypt.compare(plainPass, this.password, (err, isMatch)=>{
     if(err) return cb(err);
@@ -39,7 +57,7 @@ const comparePassword = function(plainPass, cb){
 
 
 const generateToken = function(cb){
-  let user = new IUserDTO(this).UserInfo;
+  let user = this;
   let token = jwt.sign(user._id.toHexString(), 'secretToken');
 
   user.token = token;
@@ -51,7 +69,7 @@ const generateToken = function(cb){
 
 
 const findByToken = function(token, cb){
-  let user = new IUserDTO(this).UserInfo;
+  let user = this;
 
   jwt.verify(token, 'secretToken', (err,decoded)=>{
     user.findOne({"_id" :decoded, "token": token}, (err,user)=>{
@@ -63,7 +81,7 @@ const findByToken = function(token, cb){
 
 
 const findVerifiedUser = function(token, cb){
-  let user = new IUserDTO(this).UserInfo;
+  let user = this;
 
   jwt.verify(token, 'secretToken', (err,decoded)=>{
     user.findOne({"_id" :decoded, "token": token, "auth_email_verified":true}, (err,user)=>{
@@ -74,5 +92,5 @@ const findVerifiedUser = function(token, cb){
 }
 
 module.exports = {
-  cryptPassword, comparePassword, generateToken, findByToken, findVerifiedUser
+  generateToken, findByToken, findVerifiedUser, updatePassword, cryptPasswordAndEmail, comparePassword
 }

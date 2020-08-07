@@ -124,6 +124,24 @@ class IUserDTO{
       update_date: moment().format()
     }
   }
+
+  getUpdateUserPasswordInfo(){
+    return {
+      _id: this._id,
+      password: this.password,
+      update_date: moment().format()
+    }
+  }
+
+  getDeleteUserInfo(){
+    return {
+      _id: this._id,
+      token: "",
+      update_date: moment().format(),
+      delete_date: moment().format(),
+      del_ny: true
+    }
+  }
 }
 
 module.exports= IUserDTO
