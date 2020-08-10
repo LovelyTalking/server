@@ -1,5 +1,5 @@
 const mongoose = require('../configs/mongo.db.js');
-const userCtrl = require('../containers/models/user.model.service')
+const {UserModelContainer} = require('../containers/models/user.model.service')
 
 const userSchema = mongoose.Schema({
   email:{
@@ -74,18 +74,16 @@ const userSchema = mongoose.Schema({
     type: Boolean,
     default : false
   },
-  badges:{
-    type: String
-  }
+  badges:[String]
 })
 
 
-userSchema.pre('save', userCtrl.cryptPasswordAndEmail);
-userSchema.methods.comparePassword = userCtrl.comparePassword;
-userSchema.methods.generateToken = userCtrl.generateToken;
-userSchema.methods.updatePassword = userCtrl.updatePassword;
-userSchema.statics.findByToken = userCtrl.findByToken;
-userSchema.statics.findVerifiedUser = userCtrl.findVerifiedUser;
+userSchema.pre('save', UserModelContainer.get('crypt.password.email'));
+userSchema.methods.comparePassword = UserModelContainer.get('compare.password');
+userSchema.methods.generateToken = UserModelContainer.get('generate.token');
+userSchema.methods.updatePassword = UserModelContainer.get('update.password');
+userSchema.statics.findByToken = UserModelContainer.get('findby.token');
+userSchema.statics.findVerifiedUser = UserModelContainer.get('find.verified.user');
 
 const User = mongoose.model('User', userSchema);
 module.exports = {User};

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const userServices = require('../../services/users/user.service')
 const { AuthContainer } = require('../../containers/auth/auth')
-const UserService = require('../../services/users/user.service')
+
 // TODO: make container/auth/checkUser.js
 
 

@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const IUserDTO = require('../../interfaces/IUser')
+const UserModelContainer = require('typedi').Container;
 
 const cryptPasswordAndEmail = function(next){
   let user = this;
@@ -91,6 +92,12 @@ const findVerifiedUser = function(token, cb){
   })
 }
 
-module.exports = {
-  generateToken, findByToken, findVerifiedUser, updatePassword, cryptPasswordAndEmail, comparePassword
-}
+
+UserModelContainer.set("crypt.password.email", cryptPasswordAndEmail);
+UserModelContainer.set("generate.token", generateToken);
+UserModelContainer.set("findby.token", findByToken);
+UserModelContainer.set("find.verified.user", findVerifiedUser);
+UserModelContainer.set("update.password", updatePassword);
+UserModelContainer.set("compare.password", comparePassword);
+
+module.exports = { UserModelContainer }

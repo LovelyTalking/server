@@ -1,6 +1,7 @@
 const {User} = require('../../models/User')
 const IUserDTO = require('../../interfaces/IUser');
 const authMailConfig = require('../../configs/nodemailer');
+const {ErrorMessageContainer} = require('../../containers/errors/message.error');
 const _ = require('lodash');
 
 const registerUser = (req, res)=>{
@@ -10,13 +11,7 @@ const registerUser = (req, res)=>{
 
   user.save((err,userInfo)=>{
     if(err)
-    {
-      console.log(err);
-      return res.status(500).json({
-         register_success: false,
-         err: "mongoDB error"
-      })
-    }
+      return sendMongooseErr(err,res);
 
     authMailConfig(req, user);
     return res.status(200).json({
@@ -25,7 +20,6 @@ const registerUser = (req, res)=>{
     });
   });
 }
-
 
 const checkDuplicateEmailName = (req, res)=>{
   if(!req.params.email){
@@ -37,17 +31,12 @@ const checkDuplicateEmailName = (req, res)=>{
 
   User.findOne({email:req.params.email},(err,user)=>{
     if(err)
-    {
-      console.log(err);
-      return res.status(500).json({
-         check_email_id: false,
-         err: "mongoDB error"
-      })
-    }
+      return sendMongooseErr(err,res);
 
     if(!user){
       return res.status(200).json({
-        check_email_id:true
+        check_email_id:true,
+        err: err
       })
     }else {
       return res.status(200).json({
@@ -60,10 +49,10 @@ const checkDuplicateEmailName = (req, res)=>{
 
 const checkVerifyAuthEmail = (req,res)=>{
 	User.updateOne({auth_email_key:req.query.key},{$set:{auth_email_verified:true}}, function(err,user){
-		if(err)
-      console.log(err);
+    if(err)
+      return sendMongooseErr(err,res);
 		else if(!user)
-      res.status(400);
+      res.status(400).json({varify_email_success: false, err: "해당 이메일정보가 정확하지 않습니다."});
 		else
       res.status(200).redirect('/');
 	});
@@ -77,10 +66,8 @@ const loginUser = (req,res)=>{
     });
 
   User.findOne({email:req.body.email},(err,user)=>{
-    if(err){
-      console.log(err);
-      return res.status(500).json({login_success: false, err: "mongoDB error" });
-    }
+    if(err)
+      return sendMongooseErr(err,res);
 
     if(!user)
       return res.status(400).json({
@@ -92,6 +79,9 @@ const loginUser = (req,res)=>{
       return res.status(400).json( {login_success: false, err: "해당 계정은 삭제되었습니다" });
 
     user.comparePassword(req.body.password, (err, isMatch)=>{
+      if(err)
+        return sendMongooseErr(err,res);
+
       if(!isMatch)
         return res.status(200).json({
           login_success: false,
@@ -99,6 +89,9 @@ const loginUser = (req,res)=>{
         });
 
       user.generateToken((err, user)=>{
+        if(err)
+          return sendMongooseErr(err,res);
+
         if(!user) return res.status(400).send({
           login_success: false,
           err: "토큰 생성에 실패했습니다."
@@ -133,13 +126,7 @@ const uploadProfileImage = (req,res)=>{
 
   User.findOneAndUpdate({_id: updateInfo._id},{$set : { profile_image: updateInfo.profile_image, update_date : updateInfo.update_date }}, {new :true}, (err, updatedUser)=>{
     if(err)
-    {
-      console.log(err);
-      return res.status(500).json({
-         upload_profileImage_success: false,
-         err: "mongoDB error"
-      })
-    }
+      return sendMongooseErr(err,res);
 
     if(!updatedUser)
       return res.status(400).json({
@@ -166,13 +153,7 @@ const uploadProfileText = (req,res)=>{
   User.findOneAndUpdate({_id: updateInfo._id},{$set : { profile_text: updateInfo.profile_text, update_date : updateInfo.update_date }}, {new :true}, (err, updatedUser)=>{
     // @desc duplicate update image
     if(err)
-    {
-      console.log(err);
-      return res.status(500).json({
-         upload_profileText_success: false,
-         err: "mongoDB error"
-      })
-    }
+      return sendMongooseErr(err,res);
 
     if(!updatedUser)
       return res.status(400).json({
@@ -198,19 +179,14 @@ const updateUserInfo = (req,res)=>{
       })
   }
 
+  // @desc cloneDeep() : 객체를 참조하는 것이 아닌 복사하여 새로운 객체 생성
   let updateInputObj = _.cloneDeep(updateInfo);
   delete updateInputObj['_id'];
 
   User.findOneAndUpdate({_id: updateInfo._id},{$set : updateInputObj}, {new :true}, (err, updatedUser)=>{
     // @desc duplicate update image
     if(err)
-    {
-      console.log(err);
-      return res.status(500).json({
-         update_user_success: false,
-         err: "mongoDB error"
-      })
-    }
+      return sendMongooseErr(err,res);
 
     if(!updatedUser)
       return res.status(400).json({
@@ -235,13 +211,7 @@ const logoutUser = (req,res)=>{
 
   User.findOneAndUpdate({token : req.cookies.x_pla}, {$set : {token: ""}}, {new: true}, (err,updatedUser)=>{
     if(err)
-    {
-      console.log(err);
-      return res.status(500).json({
-         logout_success: false,
-         err: "mongoDB error"
-      })
-    }
+      return sendMongooseErr(err,res);
 
     if(!updatedUser)
       return res.status(400).json({
@@ -265,13 +235,8 @@ const confirmUserPassword = (req,res)=>{
 
   User.findById({_id: req.body._id}, (err,user)=>{
     if(err)
-    {
-      console.log(err);
-      return res.status(500).json({
-         confirm_password_success: false,
-         err: "mongoDB error"
-      })
-    }
+      return sendMongooseErr(err,res);
+
     if(!user)
       return res.status(400).json({
         confirm_password_success: false,
@@ -279,6 +244,9 @@ const confirmUserPassword = (req,res)=>{
       })
 
     user.comparePassword(req.body.password, (err,isMatch)=>{
+      if(err)
+        return sendMongooseErr(err,res);
+
       if(!isMatch)
         return res.status(200).json({
           confirm_password_success: false,
@@ -313,13 +281,9 @@ const updateUserPassword = (req,res)=>{
 
   User.findOne({_id: update_info._id}, (err,user)=>{
     user.comparePassword(update_info.password,(err,isMatch)=>{
-      if(err){
-        console.log(err);
-        return res.status(500).json({
-          update_password_success: false,
-          err: "mongoDB error"
-        })
-      }
+      if(err)
+        return sendMongooseErr(err,res);
+
       if(!isMatch)
         return res.status(400).json({
           update_password_success: false,
@@ -327,13 +291,9 @@ const updateUserPassword = (req,res)=>{
         })
 
       user.updatePassword(update_info.new_password, update_info.update_date, (err,update_success)=>{
-        if(err){
-          console.log(err);
-          return res.status(500).json({
-            update_password_success: false,
-            err: "mongoDB error"
-          })
-        }
+        if(err)
+          return sendMongooseErr(err,res);
+
         if(!update_success)
           return res.status(400).json({
             update_password_success: false,
@@ -356,10 +316,8 @@ const deleteUser = (req,res)=>{
     return res.status(400).json({delete_user_success: false, err:"요청 데이터의 유저id가 비어있습니다."})
 
   User.findOneAndUpdate({_id:delete_info._id}, {$set : delete_info},{new:true},(err,deleted_user)=>{
-    if(err){
-      console.log(err);
-      return res.status(500).json({delete_user_success: false, err:"mongoDB error"});
-    }
+    if(err)
+      return sendMongooseErr(err,res);
 
     if(!deleted_user)
       return res.status(400).json({ delete_user_success: false, err:"삭제된 유저 정보가 없습니다."})
@@ -367,6 +325,8 @@ const deleteUser = (req,res)=>{
     return res.status(200).json({ delete_user_success: true, err:err});
   })
 }
+
+const sendMongooseErr = ErrorMessageContainer.get('mongoDB.error')
 
 module.exports = {
   registerUser,
@@ -380,5 +340,5 @@ module.exports = {
   updateUserInfo,
   confirmUserPassword,
   updateUserPassword,
-  deleteUser
+  deleteUser,
 }

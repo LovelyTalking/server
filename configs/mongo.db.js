@@ -7,6 +7,8 @@ const MONGO_URL = process.env.MONGO_URL;
 
 mongoose.connect(MONGO_URL, {
   useNewUrlParser: true, useUnifiedTopology : true, useCreateIndex: true, useFindAndModify: false
-}).then(()=> console.log('mongoDB connected')).catch(err=>console.log(err));
+}).then(()=> console.log('mongoDB connected')).catch(
+  err=>console.log(err)
+);
 
 module.exports = mongoose;

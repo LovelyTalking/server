@@ -1,12 +1,13 @@
 const app = require('./configs/app');
 const mongoose = require('./configs/mongo.db');
 const user = require('./routes/users');
+const post = require('./routes/posts');
 const dotenv = require('dotenv');
-
 dotenv.config();
 
 
 app.use('/users',user);
+app.use('/posts',post);
 app.get('/', (req,res)=>{
   res.send('hello');
 })
