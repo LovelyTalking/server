@@ -3,7 +3,7 @@ const Service = require('typedi').Service;
 
 let MongoDBErrorMessageBuilder = (err,res)=>{
   console.log(err);
-  return res.status(500).json({login_success: false, err: "mongoDB error" });
+  return res.status(500).json({query_success: false, err: "mongoDB error" });
 }
 
 

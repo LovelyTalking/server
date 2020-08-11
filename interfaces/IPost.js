@@ -62,3 +62,5 @@ class IPostDTO {
     }
   }
 }
+
+module.exports = IPostDTO
