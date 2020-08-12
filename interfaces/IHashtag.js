@@ -1,10 +1,10 @@
 class IHashtagDTO {
   constructor(hashtag){
     if(!hashtag){
-      this._id =  "";
+      this.__id =  "";
       this._name =  "";
     }else{
-      this._id = hashtag._id ;
+      this.__id = hashtag._id ;
       this._name = hashtag.name ;
     }
   }
@@ -17,9 +17,6 @@ class IHashtagDTO {
     return {
       name: this._name
     }
-  }
-  setName(name){
-    this._name = name;
   }
 }
 

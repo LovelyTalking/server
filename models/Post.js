@@ -23,7 +23,7 @@ const postSchema = mongoose.Schema({
       minLength: 2
   }],
   like_users: [String],
-  annotaion_users: [String],
+  annotation_users: [String],
   comment_object:{
     //@desc nested subdoc, _id는 자동 생성, 댓글 등록 수정 날짜 del_ny여부
     user_id:{
@@ -77,6 +77,6 @@ const postSchema = mongoose.Schema({
 
 // @desc 포스트 업로드 전에 hash tag가 생성되지 않은 태그이면 새로 생성해줘야 한다.
 postSchema.pre('save', PostModelContainer.get('check.hashtag.update'));
-
+postSchema.statics.findHashtagAndSave = PostModelContainer.get('find.hashtag.save');
 const Post = mongoose.model('Post', postSchema);
 module.exports = {Post};
