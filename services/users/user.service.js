@@ -97,7 +97,7 @@ const loginUser = (req,res)=>{
           err: "토큰 생성에 실패했습니다."
         });
 
-        res.cookie("x_pla", user.token)
+        res.cookie("x_pla", user.token, {maxAge: 60000 * 60 * 24, httpOnly: true, secure:false})
           .status(200)
           .json({
             login_success: true,
@@ -318,7 +318,7 @@ const deleteUser = (req,res)=>{
   if(!delete_info._id)
     return res.status(400).json({delete_user_success: false, err:"요청 데이터의 유저id가 비어있습니다."})
 
-  User.findOneAndUpdate({_id:delete_info._id}, {$set : delete_info},{new:true,runValidators:true},(err,deleted_user)=>{
+  User.findOneAndUpdate({_id:delete_info._id, del_ny:false}, {$set : delete_info},{new:true,runValidators:true},(err,deleted_user)=>{
     if(err)
       return sendMongooseErr(err,res);
 
