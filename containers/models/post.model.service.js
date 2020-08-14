@@ -26,7 +26,7 @@ const checkHashtagAndUpdate = function(next){
   next();
 }
 
-const findHashtagAndSave = (hashtags,res)=>{
+const findHashtagAndSave = function(hashtags,res){
   hashtags.forEach( async(hashtag_name) => {
     try{
       const found_hashtag = await Hashtag.findOne({name:hashtag_name});

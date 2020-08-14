@@ -48,7 +48,7 @@ const checkDuplicateEmailName = (req, res)=>{
 }
 
 const checkVerifyAuthEmail = (req,res)=>{
-	User.updateOne({auth_email_key:req.query.key},{$set:{auth_email_verified:true}}, function(err,user){
+	User.updateOne({auth_email_key:req.query.key},{$set:{auth_email_verified:true,runValidators:true}}, function(err,user){
     if(err)
       return sendMongooseErr(err,res);
 		else if(!user)
@@ -65,7 +65,7 @@ const loginUser = (req,res)=>{
       err: "요청 데이터 객체가 비어있습니다"
     });
 
-  User.findOne({email:req.body.email},(err,user)=>{
+  User.findOne({email:req.body.email, del_ny: false},(err,user)=>{
     if(err)
       return sendMongooseErr(err,res);
 
@@ -109,8 +109,11 @@ const loginUser = (req,res)=>{
 }
 
 const sendIsAuth = (req,res)=>{
+  if(!req.user)
+    return res.status(400).json({auth_success:false, err:"인증된 유저가 아닙니다."})
+
   const user = new IUserDTO(req.user).getAuthInfo();
-  console.log('auth user info '+ user);
+  console.log('auth user info ', user);
 
   res.status(200).json(user);
 }
@@ -124,7 +127,7 @@ const uploadProfileImage = (req,res)=>{
       err: "요청 데이터에 정보가 빈 데이터가 있습니다."
     })
 
-  User.findOneAndUpdate({_id: updateInfo._id},{$set : { profile_image: updateInfo.profile_image, update_date : updateInfo.update_date }}, {new :true}, (err, updatedUser)=>{
+  User.findOneAndUpdate({_id: updateInfo._id},{$set : { profile_image: updateInfo.profile_image, update_date : updateInfo.update_date }}, {new :true,runValidators:true}, (err, updatedUser)=>{
     if(err)
       return sendMongooseErr(err,res);
 
@@ -150,7 +153,7 @@ const uploadProfileText = (req,res)=>{
       err: "요청 데이터에 정보가 빈 데이터가 있습니다."
     })
 
-  User.findOneAndUpdate({_id: updateInfo._id},{$set : { profile_text: updateInfo.profile_text, update_date : updateInfo.update_date }}, {new :true}, (err, updatedUser)=>{
+  User.findOneAndUpdate({_id: updateInfo._id},{$set : { profile_text: updateInfo.profile_text, update_date : updateInfo.update_date }}, {new :true,runValidators:true}, (err, updatedUser)=>{
     // @desc duplicate update image
     if(err)
       return sendMongooseErr(err,res);
@@ -183,7 +186,7 @@ const updateUserInfo = (req,res)=>{
   let updateInputObj = _.cloneDeep(updateInfo);
   delete updateInputObj['_id'];
 
-  User.findOneAndUpdate({_id: updateInfo._id},{$set : updateInputObj}, {new :true}, (err, updatedUser)=>{
+  User.findOneAndUpdate({_id: updateInfo._id},{$set : updateInputObj}, {new :true,runValidators:true}, (err, updatedUser)=>{
     // @desc duplicate update image
     if(err)
       return sendMongooseErr(err,res);
@@ -209,7 +212,7 @@ const logoutUser = (req,res)=>{
     })
   }
 
-  User.findOneAndUpdate({token : req.cookies.x_pla}, {$set : {token: ""}}, {new: true}, (err,updatedUser)=>{
+  User.findOneAndUpdate({token : req.cookies.x_pla}, {$set : {token: ""}}, {new: true,runValidators:true}, (err,updatedUser)=>{
     if(err)
       return sendMongooseErr(err,res);
 
@@ -315,7 +318,7 @@ const deleteUser = (req,res)=>{
   if(!delete_info._id)
     return res.status(400).json({delete_user_success: false, err:"요청 데이터의 유저id가 비어있습니다."})
 
-  User.findOneAndUpdate({_id:delete_info._id}, {$set : delete_info},{new:true},(err,deleted_user)=>{
+  User.findOneAndUpdate({_id:delete_info._id}, {$set : delete_info},{new:true,runValidators:true},(err,deleted_user)=>{
     if(err)
       return sendMongooseErr(err,res);
 

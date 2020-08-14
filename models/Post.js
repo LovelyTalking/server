@@ -6,6 +6,18 @@ const postSchema = mongoose.Schema({
     type: String,
     required: true
   },
+  native_language:{
+    type:String,
+    minLength: 2,
+    maxlength: 2,
+    required:true
+  },
+  target_language:{
+    type:String,
+    minLength: 2,
+    maxlength: 2,
+    required:true
+  },
   post_context:{
     type: String,
     minLength: 3,
@@ -24,7 +36,7 @@ const postSchema = mongoose.Schema({
   }],
   like_users: [String],
   annotation_users: [String],
-  comment_object:{
+  comment_object:[{
     //@desc nested subdoc, _id는 자동 생성, 댓글 등록 수정 날짜 del_ny여부
     user_id:{
       type: String
@@ -41,8 +53,8 @@ const postSchema = mongoose.Schema({
       type: Boolean,
       default: false,
     }
-  },
-  correction_object:{
+  }],
+  correction_object:[{
     user_id:{
       type: String
     },
@@ -59,7 +71,7 @@ const postSchema = mongoose.Schema({
       type: Boolean,
       default: false,
     }
-  },
+  }],
   register_date:{
     type: String
   },

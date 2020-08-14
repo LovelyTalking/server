@@ -3,6 +3,9 @@ const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const IUserDTO = require('../../interfaces/IUser')
 const UserModelContainer = require('typedi').Container;
+const {ErrorMessageContainer} = require('../errors/message.error');
+
+const sendMongooseErr = ErrorMessageContainer.get('mongoDB.error')
 
 const cryptPasswordAndEmail = function(next){
   let user = this;
@@ -39,7 +42,7 @@ const updatePassword = function(new_password,update_date, cb){
 
     bcrypt.hash(new_password, salt, (err, hash)=>{
       if(err) return cb(err);
-      user.update({$set: {password:hash, update_date: update_date }}, (err,updated_user)=>{
+      user.update({$set: {password:hash, update_date: update_date }},{new: true,runValidators:true}, (err,updated_user)=>{
         if(err) cb(err);
         if(!updated_user) cb(null, false);
         cb(null,true);
@@ -69,15 +72,16 @@ const generateToken = function(cb){
 }
 
 
-const findByToken = function(token, cb){
+const findByToken = async function(token, res){
   let user = this;
+  try{
+    const decoded = await jwt.verify(token, 'secretToken');
+    const found_user = await user.findOne({"_id" :decoded, "token": token});
 
-  jwt.verify(token, 'secretToken', (err,decoded)=>{
-    user.findOne({"_id" :decoded, "token": token}, (err,user)=>{
-      if(err) return cb(err);
-      cb(null, user);
-    })
-  })
+    return found_user;
+  }catch(err){
+    sendMongooseErr(err, res);
+  }
 }
 
 
