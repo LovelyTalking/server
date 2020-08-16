@@ -144,4 +144,4 @@ class IUserDTO{
   }
 }
 
-module.exports= IUserDTO
+module.exports= {IUserDTO}

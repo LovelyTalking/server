@@ -10,13 +10,15 @@ const postSchema = mongoose.Schema({
     type:String,
     minLength: 2,
     maxlength: 2,
-    required:true
+    required:true,
+    uppercase: true
   },
   target_language:{
     type:String,
     minLength: 2,
     maxlength: 2,
-    required:true
+    required:true,
+    uppercase: true
   },
   post_context:{
     type: String,
@@ -49,6 +51,9 @@ const postSchema = mongoose.Schema({
     register_date: {
       type: String
     },
+    delete_date:{
+      type:String
+    },
     del_ny :{
       type: Boolean,
       default: false,
@@ -58,7 +63,7 @@ const postSchema = mongoose.Schema({
     user_id:{
       type: String
     },
-    comment_context: {
+    correction_context: {
       type: String,
       minLength: 2,
       maxLength: 400
@@ -66,6 +71,9 @@ const postSchema = mongoose.Schema({
     word_index_arr :[Number],
     register_date: {
       type: String
+    },
+    delete_date:{
+      type:String
     },
     del_ny :{
       type: Boolean,
@@ -90,5 +98,10 @@ const postSchema = mongoose.Schema({
 // @desc 포스트 업로드 전에 hash tag가 생성되지 않은 태그이면 새로 생성해줘야 한다.
 postSchema.pre('save', PostModelContainer.get('check.hashtag.update'));
 postSchema.statics.findHashtagAndSave = PostModelContainer.get('find.hashtag.save');
+postSchema.statics.findPostAndPushComment = PostModelContainer.get('find.post.push.comment');
+postSchema.statics.findPostAndDeleteComment = PostModelContainer.get('find.post.delete.comment');
+postSchema.statics.findPostAndPushCorrection = PostModelContainer.get('find.post.push.correction');
+postSchema.statics.findPostAndDeleteCorrection = PostModelContainer.get('find.post.delete.correction');
+
 const Post = mongoose.model('Post', postSchema);
 module.exports = {Post};

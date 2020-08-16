@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
-const IUserDTO = require('../../interfaces/IUser')
+const {IUserDTO} = require('../../interfaces/IUser')
 const UserModelContainer = require('typedi').Container;
 const {ErrorMessageContainer} = require('../errors/message.error');
 
@@ -22,7 +22,6 @@ const cryptPasswordAndEmail = function(next){
       })
     })
   }else{
-
     next();
   }
 };

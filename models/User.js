@@ -24,13 +24,15 @@ const userSchema = mongoose.Schema({
     type: String,
     minLength: 2,
     maxLength: 2,
-    required: true
+    required: true,
+    uppercase: true
   },
   target_language:{
     type: String,
     minLength: 2,
     maxLength: 2,
-    required: true
+    required: true,
+    uppercase: true
   },
   gender:{
     type: String,

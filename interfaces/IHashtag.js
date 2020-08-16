@@ -21,4 +21,4 @@ class IHashtagDTO {
 }
 
 
-module.exports = IHashtagDTO;
+module.exports = {IHashtagDTO};

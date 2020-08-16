@@ -1,6 +1,8 @@
 const router = require('express').Router();
+const postList = require('./display.list');
+const comment = require('./comment');
+const correction = require('./correction');
 const postServices = require('../../services/posts/post.service')
-const post_list = require('./display.list');
 const { AuthContainer } = require('../../containers/auth/auth')
 
 const authToken = AuthContainer.get("auth.User");
@@ -14,6 +16,8 @@ router.get('/display/:_id', authToken, postServices.displayOnePost);
 router.post('/update', authToken, postServices.updatePost);
 router.get('/delete/:_id', authToken, postServices.deletePost);
 
-router.use('/display/list',post_list);
+router.use('/display/list',postList);
+router.use('/comment',comment);
+router.use('/correction',correction);
 
 module.exports = router;

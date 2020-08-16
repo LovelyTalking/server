@@ -1,5 +1,5 @@
 const {User} = require('../../models/User')
-const IUserDTO = require('../../interfaces/IUser');
+const {IUserDTO} = require('../../interfaces/IUser');
 const authMailConfig = require('../../configs/nodemailer');
 const {ErrorMessageContainer} = require('../../containers/errors/message.error');
 const _ = require('lodash');
