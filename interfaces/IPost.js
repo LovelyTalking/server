@@ -149,6 +149,8 @@ class IPostListDTO extends IPostDTO{
 
   getHashtagRelatedSearchOptionInfo(){
     return {
+      native_language : super.PostInfo.native_language,
+      target_language : super.PostInfo.target_language,
       hashtag_name : this._hashtag_name,
       page_index: this._page_index,
       page_size: this._page_size

@@ -329,6 +329,14 @@ const deleteUser = (req,res)=>{
   })
 }
 
+const displayOneUser = async (req, res)=>{
+
+}
+
+const displayUserList = async (req, res)=>{
+  
+}
+
 const sendMongooseErr = ErrorMessageContainer.get('mongoDB.error')
 
 module.exports = {
@@ -344,4 +352,6 @@ module.exports = {
   confirmUserPassword,
   updateUserPassword,
   deleteUser,
+  displayOneUser,
+  displayUserList
 }

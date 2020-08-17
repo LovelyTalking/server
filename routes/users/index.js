@@ -20,9 +20,11 @@ router.post('/update/user', authToken, userServices.updateUserInfo);
 router.post('/confirm/password', authToken, userServices.confirmUserPassword);
 router.post('/update/password', authToken, userServices.updateUserPassword);
 
-// TODO: delete user -> update delny data in user info
 router.post('/delete', authToken, userServices.deleteUser);
 
+// @desc TODO: get user info of One, multi 
+router.get('/:user_email', authToken, userServices.displayOneUser);
+router.get('/:user_name', authToken, userServices.displayUserList);
 
 
 
