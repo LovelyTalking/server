@@ -3,9 +3,9 @@ const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const {IUserDTO} = require('../../interfaces/IUser')
 const UserModelContainer = require('typedi').Container;
-const {ErrorMessageContainer} = require('../errors/message.error');
+const {ErrorContainer} = require('../../containers/errors/message.error');
 
-const sendMongooseErr = ErrorMessageContainer.get('mongoDB.error')
+const CustomError = ErrorContainer.get('custom.error')
 
 const cryptPasswordAndEmail = function(next){
   let user = this;
@@ -22,7 +22,7 @@ const cryptPasswordAndEmail = function(next){
       })
     })
   }else{
-    next();
+    return next();
   }
 };
 
@@ -30,44 +30,52 @@ const cryptEmail = function(user, salt, next){
   bcrypt.hash(user.email, salt, (err,hash)=>{
     if(err) return next(err);
     user.auth_email_key = hash;
-      next();
+    return next();
   })
 }
 
-const updatePassword = function(new_password,update_date, cb){
-  let user = this;
-  bcrypt.genSalt(saltRounds, (err,salt)=>{
-    if(err) return cb(err);
+const updatePassword = async function(new_password,update_date){
+  try{
+    let user = this;
 
-    bcrypt.hash(new_password, salt, (err, hash)=>{
-      if(err) return cb(err);
-      user.update({$set: {password:hash, update_date: update_date }},{new: true,runValidators:true}, (err,updated_user)=>{
-        if(err) cb(err);
-        if(!updated_user) cb(null, false);
-        cb(null,true);
-      })
-    })
-  })
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hashed_password = await bcrypt.hash(new_password, salt);
 
+    const updated_user = await user.updateOne({$set: {password:hashed_password, update_date: update_date }},{new: true,runValidators:true})
+
+    return {err: null, updated_user};
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
+  }
 };
 
-const comparePassword = function(plainPass, cb){
-  bcrypt.compare(plainPass, this.password, (err, isMatch)=>{
-    if(err) return cb(err);
-    cb(null, isMatch);
-  })
+const comparePassword = async function(plainPass, cb){
+  try{
+    const isMatch = await bcrypt.compare(plainPass, this.password);
+    return {err:null, isMatch};
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
+  }
 }
 
 
-const generateToken = function(cb){
-  let user = this;
-  let token = jwt.sign(user._id.toHexString(), 'secretToken');
+const generateToken = async function(){
+  try {
+    let user = this;
+    let token = jwt.sign(user._id.toHexString(), 'secretToken');
 
-  user.token = token;
-  user.save((err,user)=>{
-      if(err) return cb(err);
-      cb(null, user);
-  })
+    user.token = token;
+    const saved_user = await user.save();
+    return {err:null, saved_user};
+  } catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
+  }
 }
 
 
@@ -79,20 +87,27 @@ const findByToken = async function(token, res){
 
     return found_user;
   }catch(err){
-    sendMongooseErr(err, res);
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
   }
 }
 
 
-const findVerifiedUser = function(token, cb){
-  let user = this;
+const findVerifiedUser = async function(token){
+  try{
+    let user = this;
 
-  jwt.verify(token, 'secretToken', (err,decoded)=>{
-    user.findOne({"_id" :decoded, "token": token, "auth_email_verified":true}, (err,user)=>{
-      if(err) return cb(err);
-      cb(null, user);
-    })
-  })
+    const decoded = await jwt.verify(token, 'secretToken');
+    const found_user = await user.findOne({"_id" :decoded, "token": token, "auth_email_verified":true});
+    if(!found_user) throw new CustomError(500,"토큰에 해당하는 유저를 찾을 수 없습니다.");
+
+    return {err:null, user: found_user};
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
+  }
 }
 
 

@@ -1,10 +1,11 @@
 const Service  = require("typedi").Service;
 const MergeContainer = require("typedi").Container;
 const {User} = require("../../models/User");
+const {ErrorContainer} = require('../../containers/errors/message.error');
 
+const CustomError = ErrorContainer.get('custom.error');
 
 let UserIDList = Service((list)=>({
-
   extractUserID(list){
     try{
       let ID_list =[];
@@ -42,15 +43,23 @@ let MergedList = Service((list, user_list)=>({
     let obj_arr = [];
     let info = {};
     let user = {};
-    for(let i=0; i< list.length; i++){
-      info = JSON.parse(JSON.stringify(list[i]));
-      user = JSON.parse(JSON.stringify(user_list[i]));
+    try {
+      if(list.length !== user_list.length)
+        throw new CustomError(500,"두 리스트의 크기가 같지 않습니다.")
 
-      const obj = Object.assign({},info, user);
-      obj_arr.push(obj);
+      for(let i=0; i< list.length; i++){
+        info = JSON.parse(JSON.stringify(list[i]));
+        user = JSON.parse(JSON.stringify(user_list[i]));
+
+        const obj = Object.assign({},info, user);
+        obj_arr.push(obj);
+      }
+
+      return {err:null, obj_arr};
+    } catch (err) {
+      console.log(err);
+      return {err:err};
     }
-
-    return obj_arr;
   }
 }))
 
@@ -62,14 +71,14 @@ const MergeListUserService = Service([
   const getMergedList = async function(list){
     try{
       const userID_list = await userID.extractUserID(list);
-      if(userID_list.err) throw ExtractUserIDError("user id 추출 에러");
+      if(userID_list.err) throw new CustomError(500,"user id 추출 에러");
 
       const userinfo_list = await userinfo.matchUserInfo(userID_list.ID_list);
-      if(userinfo.err) throw MatchUserInfo("해당 유저 아이디와 매치되는 유저 정보리스트 불러오기 에러")
+      if(userinfo.err) throw new CustomError(500,"해당 유저 아이디와 매치되는 유저 정보리스트 불러오기 에러")
 
       const merged_list = await merged.mergeListAndUser(list, userinfo_list.user_list);
-
-      return { err:null, merged_list};
+      if(merged_list.err) throw MergeListAndUser("리스트를 병합하는데 에러");
+      return { err:null, merged_list: merged_list.obj_arr};
     }catch(err){
       console.log(err);
       return { err:err};

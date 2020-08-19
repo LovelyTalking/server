@@ -102,6 +102,10 @@ postSchema.statics.findPostAndPushComment = PostModelContainer.get('find.post.pu
 postSchema.statics.findPostAndDeleteComment = PostModelContainer.get('find.post.delete.comment');
 postSchema.statics.findPostAndPushCorrection = PostModelContainer.get('find.post.push.correction');
 postSchema.statics.findPostAndDeleteCorrection = PostModelContainer.get('find.post.delete.correction');
+postSchema.statics.getCommentListOfPost = PostModelContainer.get('get.comment.list.of.post')
+postSchema.statics.getCorrectionListOfPost = PostModelContainer.get('get.correction.list.of.post');
+
 
 const Post = mongoose.model('Post', postSchema);
+
 module.exports = {Post};

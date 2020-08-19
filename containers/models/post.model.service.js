@@ -3,7 +3,9 @@ const {Hashtag} = require('../../models/Hashtag');
 const {IHashtagDTO} = require('../../interfaces/IHashtag');
 const {ICommentDTO} = require('../../interfaces/IComment');
 const {ICorrectionDTO} = require('../../interfaces/ICorrection');
-const {ErrorMessageContainer} = require('../errors/message.error');
+const {ErrorContainer} = require('../errors/message.error');
+
+const CustomError= ErrorContainer.get('custom.error');
 
 const checkHashtagAndUpdate = function(next){
   let post = this;
@@ -28,9 +30,9 @@ const checkHashtagAndUpdate = function(next){
   next();
 }
 
-const findHashtagAndSave = async function(hashtags,res){
-  hashtags.forEach(async (hashtag_name) => {
-    try{
+const findHashtagAndSave = async function(hashtags){
+  try{
+    for(const hashtag_name of hashtags){
       const found_hashtag = await Hashtag.findOne({name:hashtag_name});
       if(!found_hashtag){
         const hashtagDTO = new IHashtagDTO();
@@ -40,23 +42,27 @@ const findHashtagAndSave = async function(hashtags,res){
         const hashtag_doc = new Hashtag(insert_hashtag);
         await hashtag_doc.save();
       }
-    }catch(err){
-      return sendMongooseErr(err,res);
     }
-  })
+    return {err:null};
+
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
+  }
 }
 
-const findPostAndPushComment = async function(upload_info, res){
+const findPostAndPushComment = async function(upload_info){
   try{
     const post = await this.findOne({_id: upload_info.post_id, del_ny:false});
-    if(!post) return {err: "해당 포스트 정보가 없습니다."};
+    if(!post) throw new CustomError(500, "해당 포스트 정보가 없습니다.");
 
-    post.comment_object.push(upload_info);
-    post.annotation_users.push(upload_info.user_id);
+    const comment_index = await post.comment_object.push(upload_info);
+    await post.annotation_users.push(upload_info.user_id);
     const uploaded_post = await post.save();
-    if(!uploaded_post) return {err: "포스트에 저장되지 않았습니다"};
+    if(!uploaded_post) throw new CustomError(500,"포스트에 저장되지 않았습니다")
 
-    let uploaded_comment = new ICommentDTO(upload_info).getReturnOneCommentInfo();
+    let uploaded_comment = new ICommentDTO(post.comment_object[comment_index-1]).getReturnOneCommentInfo();
     uploaded_comment.annotation_size = post.annotation_users.length;
 
     return {
@@ -64,38 +70,32 @@ const findPostAndPushComment = async function(upload_info, res){
       uploaded_comment
     }
   }catch(err){
-    return sendMongooseErr(err,res);
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
   }
 }
 
 const findPostAndDeleteComment = async function(delete_info, res){
   try{
     const post = await this.findOne({_id: delete_info.post_id, del_ny:false});
-    if(!post) return {err: "해당 포스트 정보가 없습니다."};
+    if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
-    let deleted_comment;
-    let is_update = false;
+    let comment_doc = post.comment_object.id(delete_info._id);
+    if(!comment_doc) throw new CustomError(500,"해당 아이디의 댓글이 없습니다")
+    if(comment_doc.del_ny || comment_doc.user_id !== delete_info.user_id)
+      throw new CustomError(400, "해당 댓글은 지울 수 없습니다.")
 
-    // @desc 반복문을 사용할 수 밖에 없는 이유: 클라에서 인덱스를 줘도 디비의 인덱스와 다르다
-    is_update = post.comment_object.some(comment =>{
-      if(String(comment._id) === delete_info._id && comment.user_id === delete_info.user_id && comment.del_ny === false){
-        comment["del_ny"] = true;
-        comment["delete_date"] = delete_info.delete_date;
-
-        const idx = post.annotation_users.indexOf(delete_info.user_id);
-        if(idx === -1) return {err: "지운 댓글에 해당하는 작성자가 작성자 배열에 없습니다."}
-        if(idx>-1) post.annotation_users.splice(idx,1);
-        deleted_comment = new ICommentDTO(comment).getReturnOneCommentInfo();
-
-        return true;
-      }
-    })
-
-    if(!is_update) return { err: "제거된 댓글이 없습니다."};
+    comment_doc.del_ny =true;
+    comment_doc.delete_date = delete_info.delete_date;
+    const idx = post.annotation_users.indexOf(delete_info.user_id);
+    if(idx === -1) throw new CustomError(500,"지운 댓글에 해당하는 작성자가 작성자 배열에 없습니다.");
+    if(idx>-1) post.annotation_users.splice(idx,1);
 
     const deleted_post = await post.save();
-    if(!deleted_post) return { err: "해당 포스트에 저장되지 않았습니다."};
+    if(!deleted_post) throw new CustomError(500,"해당 포스트에 저장되지 않았습니다.");
 
+    let deleted_comment = new ICommentDTO(comment_doc).getReturnOneCommentInfo();
     deleted_comment.annotation_size = deleted_post.annotation_users.length;
 
     return {
@@ -103,22 +103,24 @@ const findPostAndDeleteComment = async function(delete_info, res){
       deleted_comment
     }
   }catch(err){
-    return sendMongooseErr(err,res);
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
   }
 }
 
 const findPostAndPushCorrection = async function(upload_info, res){
   try{
     let post = await this.findOne({_id: upload_info.post_id, del_ny: false});
-    if(!post) return {err: "해당 포스트 정보가 없습니다."};
+    if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
-    post.correction_object.push(upload_info);
-    post.annotation_users.push(upload_info.user_id);
+    const correct_index =post.correction_object.push(upload_info);
+    await post.annotation_users.push(upload_info.user_id);
 
     const uploaded_post = await post.save();
-    if(!uploaded_post) return {err: "포스트에 저장되지 않았습니다"};
+    if(!uploaded_post) throw new CustomError(500,"포스트에 저장되지 않았습니다");
 
-    const uploaded_correction = new ICorrectionDTO(upload_info).getReturnOneCorrectionInfo();
+    const uploaded_correction = new ICorrectionDTO(post.correction_object[correct_index-1]).getReturnOneCorrectionInfo();
     uploaded_correction.annotation_size = uploaded_post.annotation_users.length;
 
     return {
@@ -126,36 +128,32 @@ const findPostAndPushCorrection = async function(upload_info, res){
       uploaded_correction
     }
   }catch(err){
-    return sendMongooseErr(err, res);
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
   }
 }
 
 const findPostAndDeleteCorrection = async function(delete_info,res){
   try{
     let post = await this.findOne({_id: delete_info.post_id, del_ny:false});
-    if(!post) return {err: "해당 포스트 정보가 없습니다."};
+    if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
-    let deleted_correction;
-    let is_update = false;
-    
-    is_update = post.correction_object.some(correction=>{
-      if(String(correction._id) === delete_info._id && correction.user_id === delete_info.user_id && correction.del_ny === false){
-        correction["del_ny"] =true;
-        correction["delete_date"] = delete_info.delete_date;
+    let correction_doc = post.correction_object.id(delete_info._id);
+    if(!correction_doc) throw new CustomError(500,"해당 아이디의 댓글이 없습니다")
+    if(correction_doc.del_ny || correction_doc.user_id !== delete_info.user_id)
+      throw new CustomError(400, "해당 댓글은 지울 수 없습니다.")
 
-        const idx = post.annotation_users.indexOf(delete_info.user_id);
-        if(idx === -1) return {err: "지운 첨삭에 해당하는 작성자가 작성자 배열에 없습니다."}
-        if(idx>-1) post.annotation_users.splice(idx,1);
-        deleted_correction = new ICorrectionDTO(correction).getReturnOneCorrectionInfo();
-
-        return true;
-      }
-    });
-    if(!is_update) return { err: "지워진 첨삭이 없습니다."};
+    correction_doc.del_ny =true;
+    correction_doc.delete_date = delete_info.delete_date;
+    const idx = post.annotation_users.indexOf(delete_info.user_id);
+    if(idx === -1) throw new CustomError(500,"지운 댓글에 해당하는 작성자가 작성자 배열에 없습니다.");
+    if(idx>-1) post.annotation_users.splice(idx,1);
 
     const deleted_post = await post.save();
-    if(!deleted_post) return {err: "지원진 첨삭에 대한 포스트를 저장할 수 없습니다."}
+    if(!deleted_post) throw new CustomError(500,"해당 포스트에 저장되지 않았습니다.");
 
+    let deleted_correction = new ICorrectionDTO(correction_doc).getReturnOneCorrectionInfo();
     deleted_correction.annotation_size = deleted_post.annotation_users.length;
 
     return {
@@ -163,11 +161,80 @@ const findPostAndDeleteCorrection = async function(delete_info,res){
       deleted_correction
     };
   }catch(err){
-    return sendMongooseErr(err,res);
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
   }
 }
 
-const sendMongooseErr= ErrorMessageContainer.get('mongoDB.error');
+const getCommentListOfPost = async function(search_info,res){
+  try{
+    let post = await this.findOne({_id: search_info.post_id, del_ny:false});
+    if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
+
+    let start = search_info.start;
+    let max_size = search_info.size;
+    const limit = post.comment_object.length;
+    let comment_list =[];
+
+    while(start< limit){
+      if(max_size === 0) break;
+
+      if(post.comment_object[start].del_ny === false){
+        comment_list.push(post.comment_object[start]);
+        --max_size;
+      }
+      start++;
+    }
+
+    const next_page_index = start;
+
+    return {
+      err:null,
+      next_page_index,
+      comment_list
+    }
+
+  }catch(err){
+    console.log(err);
+    return {err : err};
+  }
+}
+
+const getCorrectionListOfPost = async function(search_info,res){
+  try{
+    let post = await this.findOne({_id: search_info.post_id, del_ny:false});
+    if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
+
+    let start = search_info.start;
+    let max_size = search_info.size;
+    const limit = post.correction_object.length;
+    let correction_list =[];
+
+    while(start< limit){
+      if(max_size === 0) break;
+
+      if(post.correction_object[start].del_ny === false){
+        correction_list.push(post.correction_object[start]);
+        --max_size;
+      }
+      start++;
+    }
+
+    const next_page_index = start;
+    const ret_info = { next_page_index, correction_list}
+    console.log(ret_info);
+    return {
+      err:null,
+      next_page_index,
+      correction_list
+    }
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
+  }
+}
 
 PostModelContainer.set('check.hashtag.update', checkHashtagAndUpdate);
 PostModelContainer.set('find.hashtag.save', findHashtagAndSave );
@@ -175,4 +242,6 @@ PostModelContainer.set('find.post.push.comment', findPostAndPushComment);
 PostModelContainer.set('find.post.delete.comment', findPostAndDeleteComment);
 PostModelContainer.set('find.post.push.correction', findPostAndPushCorrection);
 PostModelContainer.set('find.post.delete.correction', findPostAndDeleteCorrection);
+PostModelContainer.set('get.comment.list.of.post', getCommentListOfPost);
+PostModelContainer.set('get.correction.list.of.post', getCorrectionListOfPost);
 module.exports = { PostModelContainer }

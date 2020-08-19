@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const postList = require('./display.list');
+const postList = require('./display.postList');
 const comment = require('./comment');
 const correction = require('./correction');
 const postServices = require('../../services/posts/post.service')

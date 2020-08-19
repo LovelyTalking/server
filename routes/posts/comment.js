@@ -6,5 +6,6 @@ const authToken = AuthContainer.get("auth.User");
 
 router.post('/upload',authToken, commentServices.uploadComment);
 router.get('/delete/:_id/:post_id',authToken, commentServices.deleteComment);
+router.get('/display/:post_id/:page_index/:page_size',authToken, commentServices.displayCommentList);
 
 module.exports = router;

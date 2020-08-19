@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const postDisplayListServices = require('../../services/posts/display.list.service');
+const postDisplayListServices = require('../../services/posts/display.postList.service');
 const { AuthContainer } = require('../../containers/auth/auth')
 
 const authToken = AuthContainer.get("auth.User");

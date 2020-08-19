@@ -1,12 +1,18 @@
-const ErrorMessageContainer = require('typedi').Container;
-const Service = require('typedi').Service;
+const ErrorContainer = require('typedi').Container;
+const moment = require('moment');
 
-let MongoDBErrorMessageBuilder = (err,res)=>{
-  console.log(err);
-  return res.status(500).json({query_success: false, err: "mongoDB error" });
+class CustomError extends Error{
+  constructor(status =400, ...params){
+    super(...params);
+
+    if(Error.captureStackTrace){
+      Error.captureStackTrace(this, CustomError);
+    }
+    this.status = status;
+    this.date = moment().format();
+  }
 }
 
+ErrorContainer.set('custom.error',CustomError);
 
-ErrorMessageContainer.set('mongoDB.error', MongoDBErrorMessageBuilder);
-
-module.exports= {ErrorMessageContainer};
+module.exports = {ErrorContainer}

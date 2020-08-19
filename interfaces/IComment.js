@@ -68,6 +68,21 @@ class ICommentDTO {
   }
 }
 
+class ICommentListDTO extends ICommentDTO{
+  constructor(comment_info){
+    super(comment_info);
+    this._page_index = parseInt(comment_info.page_index);
+    this._page_size = parseInt(comment_info.page_size);
+  }
+
+  get CommentSearchOptionInfo(){
+    return {
+      post_id : super.CommentInfo.post_id,
+      page_index : this._page_index,
+      page_size: this._page_size
+    }
+  }
+}
 module.exports = {
-  ICommentDTO
+  ICommentDTO, ICommentListDTO
 }

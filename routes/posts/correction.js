@@ -6,5 +6,6 @@ const authToken = AuthContainer.get("auth.User");
 
 router.post('/upload',authToken, correctionServices.uploadCorrection);
 router.get('/delete/:_id/:post_id',authToken, correctionServices.deleteCorrection);
+router.get('/display/:post_id/:page_index/:page_size',authToken, correctionServices.displayCorrectionList);
 
 module.exports = router;
