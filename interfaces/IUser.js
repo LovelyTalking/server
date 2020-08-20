@@ -144,4 +144,20 @@ class IUserDTO{
   }
 }
 
-module.exports= {IUserDTO}
+class IUserListDTO extends IUserDTO{
+  constructor(user_info){
+    super(user_info);
+    this._page_index = parseInt(user_info.page_index,10);
+    this._page_size = parseInt(user_info.page_size, 10);
+  }
+
+  getUserListSearchOptionInfo(){
+    return {
+      name: super.UserInfo.name,
+      page_index : this._page_index,
+      page_size : this._page_size
+    }
+  }
+
+}
+module.exports= {IUserDTO, IUserListDTO}

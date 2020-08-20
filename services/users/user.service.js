@@ -1,5 +1,5 @@
 const {User} = require('../../models/User')
-const {IUserDTO} = require('../../interfaces/IUser');
+const {IUserDTO, IUserListDTO} = require('../../interfaces/IUser');
 const authMailConfig = require('../../configs/nodemailer');
 const {ErrorContainer} = require('../../containers/errors/message.error');
 const _ = require('lodash');
@@ -284,11 +284,77 @@ const deleteUser = async (req,res)=>{
 }
 
 const displayOneUser = async (req, res)=>{
-  res.send("hello");
+  try{
+    if( !req.params.hasOwnProperty('email'))
+      throw new CustomError(400, "해당 요청에 필요한 객체 키가 없습니다");
+
+    const email = req.params.email;
+    const user = await User.findOne({email:email, del_ny: false},'_id email name native_language target_language gender profile_image profile_text post_count register_date');
+    if(!user) throw new CustomError(400, '요청에 해당하는 유저가 없습니다.')
+
+    return res.status(200).json({
+      display_user_success: true,
+      user
+    });
+
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return res.status(err.status).send();
+    else return res.status(500).send();
+  }
+}
+
+const checkReqInfo = (checkInfo,res)=>{
+  try{
+    for(const prop in checkInfo)
+      if(checkInfo[prop] === undefined ) throw new CustomError(400,"요청 데이터에 빈 객체가 존재합니다.")
+
+    if(isNaN(checkInfo["page_index"]) || isNaN(checkInfo["page_size"]))
+      throw new CustomError(400,"정수형 데이터 형식에 올바르지 못한 형식의 데이터가 있습니다.")
+    if( checkInfo["page_index"]<0 || checkInfo["page_size"]<0)
+      throw new CustomError(400,"0이하의 데이터가 들어왔습니다.")
+    const search_option = checkInfo;
+    const skip = search_option.page_size * search_option.page_index;
+    const limit = search_option.page_size;
+    const name = search_option.name;
+
+    return {err : null, status:null, name, skip, limit};
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return {err, status :err.status };
+    else return {err, status :500};
+  }
 }
 
 const displayUserList = async (req, res)=>{
+  try{
+    const check_info = new IUserListDTO(req.params).getUserListSearchOptionInfo()
 
+    const {err,status ,...search_option} = checkReqInfo(check_info,res);
+    if(err) throw new CustomError(status, '유저리스트 조회 요청 검사하는 곳에서 에러가 발생했습니다.')
+
+    const {name, skip, limit} = search_option;
+    // @desc 부분일치 검사는 요청한 이름과 그 앞과 뒤에 이어지는 이름을 포함한다
+    const search = name;
+    const rgx = (pattern)=> new RegExp(`.*${pattern}.*`);
+    const searchRgx =rgx(search);
+
+    const user_list = await User.find(
+      {name:{ $regex: searchRgx, $options: "i"}, del_ny : false},
+      '_id email name profile_image native_language target_language gender',
+      {skip: skip, limit: limit}
+    )
+    console.log(user_list);
+    if(!user_list)
+      throw new CustomError(400, '해당 이름의 유저정보를 찾는데 에러')
+
+    return res.status(200).json({display_user_list_success: true, user_list});
+
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return res.status(err.status).send();
+    else return res.status(500).send();
+  }
 }
 
 const CustomError = ErrorContainer.get('custom.error')

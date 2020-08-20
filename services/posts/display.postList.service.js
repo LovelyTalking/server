@@ -36,11 +36,9 @@ const displayUserRelatedPostList = async (req,res)=>{
     let limit = 0;
     [search_option, skip, limit] = checkReqInfo(checkInfo,res);
 
-    const post_list = await Post.find({user_id:search_option.user_id, del_ny:false},'_id user_id post_context post_images hashtags',{ skip: skip, limit: limit})
+    const post_list = await Post.find({user_id:search_option.user_id, del_ny:false},'_id user_id post_context post_images hashtags register_date',{ sort:'-register_date', skip: skip, limit: limit})
 
     if(!post_list) throw new CustomError(400,"요청 데이터에 맞지 않는 데이터가 있습니다.")
-      //return res.status(400).json({display_postList_user_success: true, page_index: search_option.page_index, note: "요청 데이터에 맞지 않는 데이터가 있습니다."})
-
 
     const return_list = await mergeListUserService(post_list);
     if(return_list.err) throw new CustomError(return_list.status,"유저정보와 포스트 정보를 합치는데서 에러")
@@ -68,7 +66,7 @@ const displayLangRelatedPostList = async(req,res)=>{
       native_language:search_option.native_language,
       target_language:search_option.target_language,
       del_ny:false
-    },'_id user_id post_context post_images hashtags',{ skip: skip, limit: limit});
+    },'_id user_id post_context post_images hashtags register_date',{ sort:'-register_date',skip: skip, limit: limit});
 
     if(!post_list) throw new CustomError(400,"요청 데이터에 맞지 않는 데이터가 있습니다.")
 
@@ -102,8 +100,8 @@ const displayHashtagRelatedPostList = async (req, res)=>{
         target_language: search_option.target_language,
         del_ny: false
       },
-      '_id user_id post_context post_images hashtags',
-      {skip: skip, limit: limit}
+      '_id user_id post_context post_images hashtags register_date',
+      {sort:'-register_date', skip: skip, limit: limit}
     );
 
     if(!post_list) throw new CustomError(400,"요청 데이터에 맞지 않는 데이터가 있습니다.")

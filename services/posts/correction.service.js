@@ -80,10 +80,10 @@ const displayCorrectionList = async (req,res)=>{
     }
 
     const list_info = await Post.getCorrectionListOfPost(search_option);
-    if(list_info.err) throw new CustomError(list_info.status,"포스트의 댓글 리스트를 얻는데 실패했습니다.")
+    if(list_info.err) throw new CustomError(list_info.status,"포스트의 첨삭 리스트를 얻는데 실패했습니다.")
 
     const merged_info = await mergeListUserService(list_info.correction_list);
-    if(merged_info.err) throw new CustomError(merged_info.status,"유저정보와 댓글 정보를 합치는데서 에러")
+    if(merged_info.err) throw new CustomError(merged_info.status,"유저정보와 첨삭 정보를 합치는데서 에러")
 
     return res.status(200).json({
       display_correction_list_success: true,

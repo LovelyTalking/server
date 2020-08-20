@@ -23,8 +23,8 @@ router.post('/update/password', authToken, userServices.updateUserPassword);
 router.post('/delete', authToken, userServices.deleteUser);
 
 // @desc TODO: get user info of One, multi
-router.get('/display/:user_email', authToken, userServices.displayOneUser);
-router.get('/display/list/:user_name', authToken, userServices.displayUserList);
+router.get('/display/one/:email', authToken, userServices.displayOneUser);
+router.get('/display/list/:name/:page_index/:page_size', authToken, userServices.displayUserList);
 
 router.get('/auth', authToken, userServices.sendIsAuth);
 
