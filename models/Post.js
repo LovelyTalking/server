@@ -3,8 +3,8 @@ const {PostModelContainer} = require('../containers/models/post.model.service')
 
 const postSchema = mongoose.Schema({
   user_id:{
-    type: String,
-    required: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
   native_language:{
     type:String,
@@ -23,7 +23,7 @@ const postSchema = mongoose.Schema({
   post_context:{
     type: String,
     minLength: 3,
-    maxLength: 1000
+    maxLength: 3000
   },
   post_images: [{
       type: String,
@@ -41,12 +41,13 @@ const postSchema = mongoose.Schema({
   comment_object:[{
     //@desc nested subdoc, _id는 자동 생성, 댓글 등록 수정 날짜 del_ny여부
     user_id:{
-      type: String
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
     },
     comment_context: {
       type: String,
       minLength: 2,
-      maxLength: 400
+      maxLength: 500
     },
     register_date: {
       type: String
@@ -61,12 +62,13 @@ const postSchema = mongoose.Schema({
   }],
   correction_object:[{
     user_id:{
-      type: String
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
     },
     correction_context: {
       type: String,
       minLength: 2,
-      maxLength: 400
+      maxLength: 4000
     },
     word_index_arr :[Number],
     register_date: {

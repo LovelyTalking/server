@@ -1,6 +1,6 @@
 const {User} = require("../../models/User");
 const AuthContainer = require('typedi').Container;
-const {ErrorContainer} = require('../errors/message.error');
+const {ErrorContainer} = require('../../containers/errors/message.error');
 
 const CustomError = ErrorContainer.get('custom.error');
 

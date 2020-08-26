@@ -1,5 +1,6 @@
 const { Post } = require('../../models/Post');
 const { IPostDTO, IPostListDTO } = require('../../interfaces/IPost');
+const {IUserDTO} = require('../../interfaces/IUser');
 const { mergeListUserService }  = require('../../containers/lists/merge');
 const {ErrorContainer} = require('../../containers/errors/message.error');
 
@@ -10,10 +11,6 @@ const checkReqInfo = (checkInfo,res)=>{
     for(const prop in checkInfo)
       if(checkInfo[prop] === undefined ) throw new CustomError(400,"요청 데이터에 빈 객체가 존재합니다.")
 
-    if(isNaN(checkInfo["page_index"]) || isNaN(checkInfo["page_size"]))
-      throw new CustomError(400,"정수형 데이터 형식에 올바르지 못한 형식의 데이터가 있습니다.")
-    if( checkInfo["page_index"]<0 || checkInfo["page_size"]<0)
-      throw new CustomError(400,"0이하의 데이터가 들어왔습니다.")
     const search_option = checkInfo;
     const skip = search_option.page_size * search_option.page_index;
     const limit = search_option.page_size;
@@ -36,14 +33,20 @@ const displayUserRelatedPostList = async (req,res)=>{
     let limit = 0;
     [search_option, skip, limit] = checkReqInfo(checkInfo,res);
 
-    const post_list = await Post.find({user_id:search_option.user_id, del_ny:false},'_id user_id post_context post_images hashtags register_date',{ sort:'-register_date', skip: skip, limit: limit})
+    const post_list = await Post.find(
+      {user_id:search_option.user_id, del_ny:false},
+      '_id user_id post_context post_images hashtags register_date',
+      { sort:'-register_date', skip: skip, limit: limit}
+    )
+      .populate({
+        path:'user_id',
+        match: { del_ny: false},
+        select: '_id name email native_language target_language gender profile_image'
+      })
 
     if(!post_list) throw new CustomError(400,"요청 데이터에 맞지 않는 데이터가 있습니다.")
 
-    const return_list = await mergeListUserService(post_list);
-    if(return_list.err) throw new CustomError(return_list.status,"유저정보와 포스트 정보를 합치는데서 에러")
-
-    return res.status(200).json({display_postList_user_success: true, page_index: search_option.page_index, display_info: return_list.merged_list})
+    return res.status(200).json({display_postList_user_success: true, page_index: search_option.page_index, display_info: post_list})
 
   } catch (err) {
     console.log(err);
@@ -62,18 +65,22 @@ const displayLangRelatedPostList = async(req,res)=>{
     let limit = 0;
     [search_option, skip, limit] = checkReqInfo(checkInfo,res);
 
-    const post_list = await Post.find({
-      native_language:search_option.native_language,
+    const post_list = await Post.find(
+      { native_language:search_option.native_language,
       target_language:search_option.target_language,
-      del_ny:false
-    },'_id user_id post_context post_images hashtags register_date',{ sort:'-register_date',skip: skip, limit: limit});
+      del_ny:false },
+      '_id user_id post_context post_images hashtags register_date',
+      { sort:'-register_date',skip: skip, limit: limit}
+    )
+      .populate({
+        path:'user_id',
+        match: { del_ny: false},
+        select: '_id name email native_language target_language gender profile_image'
+      });
 
     if(!post_list) throw new CustomError(400,"요청 데이터에 맞지 않는 데이터가 있습니다.")
 
-    const return_list = await mergeListUserService(post_list);
-    if(return_list.err) throw new CustomError(return_list.status,"유저정보와 포스트 정보를 합치는데서 에러")
-
-    return res.status(200).json({display_postList_lang_success: true, page_index: search_option.page_index, display_info: return_list.merged_list})
+    return res.status(200).json({display_postList_lang_success: true, page_index: search_option.page_index, display_info: post_list})
 
   }catch(err){
     console.log(err);
@@ -102,14 +109,16 @@ const displayHashtagRelatedPostList = async (req, res)=>{
       },
       '_id user_id post_context post_images hashtags register_date',
       {sort:'-register_date', skip: skip, limit: limit}
-    );
+    )
+      .populate({
+        path:'user_id',
+        match: { del_ny: false},
+        select: '_id name email native_language target_language gender profile_image'
+      });
 
     if(!post_list) throw new CustomError(400,"요청 데이터에 맞지 않는 데이터가 있습니다.")
 
-    const return_list = await mergeListUserService(post_list);
-    if(return_list.err) throw new CustomError(return_list.status,"유저정보와 포스트 정보를 합치는데서 에러")
-
-    return res.status(200).json({display_postList_hashtag_success: true, page_index: search_option.page_index, display_info: return_list.merged_list})
+    return res.status(200).json({display_postList_hashtag_success: true, page_index: search_option.page_index, display_info: post_list})
 
   }catch(err){
     console.log(err);

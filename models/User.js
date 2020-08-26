@@ -54,7 +54,7 @@ const userSchema = mongoose.Schema({
   },
   profile_text:{
     type: String,
-    maxLength: 1000,
+    maxLength: 3000,
   },
   post_count:{
     type: Number,

@@ -1,4 +1,5 @@
 const {Post} = require('../../models/Post');
+const { User} = require('../../models/User');
 const {ICorrectionDTO, ICorrectionListDTO} = require('../../interfaces/ICorrection');
 const { mergeListUserService }  = require('../../containers/lists/merge');
 const {ErrorContainer} = require('../../containers/errors/message.error');
@@ -68,11 +69,6 @@ const displayCorrectionList = async (req,res)=>{
     for(const prop in check_info)
       if(check_info[prop] === undefined ) throw new CustomError(400,"요청 데이터에 빈 객체가 존재합니다.")
 
-    if(isNaN(check_info["page_index"]) || isNaN(check_info["page_size"]))
-      throw new CustomError(400,"정수형 데이터 형식에 올바르지 못한 형식의 데이터가 있습니다.")
-    if( check_info["page_index"]<0 || check_info["page_size"]<0)
-      throw new CustomError(400,"0이하의 데이터가 들어왔습니다.")
-
     const search_option = {
       post_id : check_info.post_id,
       start : check_info.page_index,
@@ -82,13 +78,10 @@ const displayCorrectionList = async (req,res)=>{
     const list_info = await Post.getCorrectionListOfPost(search_option);
     if(list_info.err) throw new CustomError(list_info.status,"포스트의 첨삭 리스트를 얻는데 실패했습니다.")
 
-    const merged_info = await mergeListUserService(list_info.correction_list);
-    if(merged_info.err) throw new CustomError(merged_info.status,"유저정보와 첨삭 정보를 합치는데서 에러")
-
     return res.status(200).json({
       display_correction_list_success: true,
       next_page_index:  list_info.next_page_index,
-      correction_list: merged_info.merged_list
+      correction_list: list_info
     });
   }catch(err){
     console.log(err);

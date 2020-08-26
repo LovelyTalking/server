@@ -83,7 +83,7 @@ const loginUser = async (req,res)=>{
     if(generated_token.err) throw new CustomError(generated_token.status, "토큰을 생성하면서 에러")
     const user_with_token = generated_token.saved_user;
 
-    res.cookie("x_pla", user_with_token.token, {maxAge: 60000 * 60 * 24, httpOnly: true, secure:false})
+    res.cookie("x_pla", user_with_token.token, {maxAge: 1000 * 3600 * 24, httpOnly: true, secure:false})
       .status(200)
       .json({
         login_success: true,
@@ -344,7 +344,7 @@ const displayUserList = async (req, res)=>{
       '_id email name profile_image native_language target_language gender',
       {skip: skip, limit: limit}
     )
-    console.log(user_list);
+
     if(!user_list)
       throw new CustomError(400, '해당 이름의 유저정보를 찾는데 에러')
 

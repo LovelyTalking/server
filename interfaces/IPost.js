@@ -9,11 +9,11 @@ class IPostDTO {
     this._target_language = postInfo.target_language;
     this._post_context = postInfo.post_context;
     this._post_images = postInfo.post_images;
-    this._hashtags= postInfo.hashtags;
-    this._like_users = postInfo.like_users;
-    this._annotation_users= postInfo.annotation_users;
-    this._comment_object = postInfo.comment_object;
-    this._correction_object= postInfo.correction_object;
+    this._hashtags= postInfo.hashtags || [];
+    this._like_users = postInfo.like_users || [];
+    this._annotation_users= postInfo.annotation_users || [];
+    this._comment_object = postInfo.comment_object || [];
+    this._correction_object= postInfo.correction_object|| [];
     this._register_date = postInfo.register_date;
     this._update_date = postInfo.update_date;
     this._delete_date = postInfo.delete_date;
@@ -78,7 +78,7 @@ class IPostDTO {
     }
   }
 
-  getOnePostInfo(){
+  getReturnPostInfo(){
     return {
       _id: this.__id,
       user_id: this._user_id,
@@ -90,9 +90,7 @@ class IPostDTO {
       like_users: this._like_users ,
       count_like : this._like_users.length,
       annotation_users: this._annotation_users ,
-      count_annotation : this._annotation_users.length,
-      comment_object: this._comment_object,
-      correction_object: this._correction_object
+      count_annotation : this._annotation_users.length
     }
   }
 

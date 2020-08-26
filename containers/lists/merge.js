@@ -5,7 +5,7 @@ const {ErrorContainer} = require('../../containers/errors/message.error');
 
 const CustomError = ErrorContainer.get('custom.error');
 
-let UserIDList = Service((list)=>({
+let UserIDList = Service(()=>({
   extractUserID(list){
     try{
       let ID_list =[];
@@ -19,7 +19,7 @@ let UserIDList = Service((list)=>({
   }
 }));
 
-let UserinfoList = Service((list)=>({
+let UserinfoList = Service(()=>({
 
   async matchUserInfo(list){
     try{
@@ -38,20 +38,20 @@ let UserinfoList = Service((list)=>({
   }
 }));
 
-let MergedList = Service((list, user_list)=>({
+let MergedList = Service(()=>({
   mergeListAndUser(list, user_list){
     let obj_arr = [];
-    let info = {};
-    let user = {};
+    let list_info = {};
+    let user_info = {};
     try {
       if(list.length !== user_list.length)
         throw new CustomError(500,"두 리스트의 크기가 같지 않습니다.")
 
       for(let i=0; i< list.length; i++){
-        info = JSON.parse(JSON.stringify(list[i]));
-        user = JSON.parse(JSON.stringify(user_list[i]));
+        list_info = JSON.parse(JSON.stringify(list[i]));
+        user_info = JSON.parse(JSON.stringify(user_list[i]));
 
-        const obj = Object.assign({},info, user);
+        const obj = Object.assign({},user_info, list_info);
         obj_arr.push(obj);
       }
 

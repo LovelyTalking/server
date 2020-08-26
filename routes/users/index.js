@@ -1,9 +1,11 @@
 const router = require('express').Router();
 const userServices = require('../../services/users/user.service')
-const { AuthContainer } = require('../../containers/auth/auth')
-
+const { AuthContainer } = require('../../middlewares/auth/auth')
+const { validateUser} = require('../../middlewares/validator/validator')
 // TODO: make container/auth/checkUser.js
 const authToken = AuthContainer.get("auth.User");
+
+router.use(validateUser);
 
 router.post('/register', userServices.registerUser );
 router.get('/register/:email',userServices.checkDuplicateEmailName);

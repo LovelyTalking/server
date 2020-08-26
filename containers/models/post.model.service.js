@@ -3,6 +3,7 @@ const {Hashtag} = require('../../models/Hashtag');
 const {IHashtagDTO} = require('../../interfaces/IHashtag');
 const {ICommentDTO} = require('../../interfaces/IComment');
 const {ICorrectionDTO} = require('../../interfaces/ICorrection');
+const {IUserDTO} = require('../../interfaces/IUser');
 const {ErrorContainer} = require('../errors/message.error');
 
 const CustomError= ErrorContainer.get('custom.error');
@@ -54,12 +55,14 @@ const findHashtagAndSave = async function(hashtags){
 
 const findPostAndPushComment = async function(upload_info){
   try{
-    const post = await this.findOne({_id: upload_info.post_id, del_ny:false});
+    const post = await this.findOne({_id: upload_info.post_id, del_ny:false})
+
     if(!post) throw new CustomError(500, "해당 포스트 정보가 없습니다.");
 
     const comment_index = await post.comment_object.push(upload_info);
     await post.annotation_users.push(upload_info.user_id);
     const uploaded_post = await post.save();
+
     if(!uploaded_post) throw new CustomError(500,"포스트에 저장되지 않았습니다")
 
     let uploaded_comment = new ICommentDTO(post.comment_object[comment_index-1]).getReturnOneCommentInfo();
@@ -169,7 +172,11 @@ const findPostAndDeleteCorrection = async function(delete_info,res){
 
 const getCommentListOfPost = async function(search_info,res){
   try{
-    let post = await this.findOne({_id: search_info.post_id, del_ny:false});
+    let post = await this.findOne({_id: search_info.post_id, del_ny:false}).populate({
+        path:'comment_object.user_id',
+        match: { del_ny: false},
+        select: '_id name email native_language target_language gender profile_image'
+    });
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     let start = search_info.start;
@@ -186,7 +193,6 @@ const getCommentListOfPost = async function(search_info,res){
       }
       start++;
     }
-
     const next_page_index = start;
 
     return {
@@ -203,7 +209,11 @@ const getCommentListOfPost = async function(search_info,res){
 
 const getCorrectionListOfPost = async function(search_info,res){
   try{
-    let post = await this.findOne({_id: search_info.post_id, del_ny:false});
+    let post = await this.findOne({_id: search_info.post_id, del_ny:false}).populate({
+        path:'correction_object.user_id',
+        match: { del_ny: false},
+        select: '_id name email native_language target_language gender profile_image'
+    });
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     let start = search_info.start;
@@ -222,8 +232,7 @@ const getCorrectionListOfPost = async function(search_info,res){
     }
 
     const next_page_index = start;
-    const ret_info = { next_page_index, correction_list}
-    console.log(ret_info);
+
     return {
       err:null,
       next_page_index,

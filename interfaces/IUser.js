@@ -142,6 +142,21 @@ class IUserDTO{
       del_ny: true
     }
   }
+
+  getReturnUserInfo(){
+    return {
+      _id : this.__id,
+      email : this._email,
+      name : this._name,
+      native_language: this._native_language,
+      target_language: this._target_language,
+      gender :  this._gender,
+      profile_image : this._profile_image,
+      profile_text : this._profile_text,
+      post_count : this._post_count
+
+    }
+  }
 }
 
 class IUserListDTO extends IUserDTO{

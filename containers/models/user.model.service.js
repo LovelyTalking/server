@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
+const secret = process.env.JWT_SECRET;
 const {IUserDTO} = require('../../interfaces/IUser')
 const UserModelContainer = require('typedi').Container;
 const {ErrorContainer} = require('../../containers/errors/message.error');
@@ -66,7 +67,8 @@ const comparePassword = async function(plainPass, cb){
 const generateToken = async function(){
   try {
     let user = this;
-    let token = jwt.sign(user._id.toHexString(), 'secretToken');
+
+    let token = jwt.sign({id:user._id.toHexString()}, secret,{ expiresIn: 3600*24*1000, issuer: 'PLaCon'});
 
     user.token = token;
     const saved_user = await user.save();
@@ -82,8 +84,9 @@ const generateToken = async function(){
 const findByToken = async function(token, res){
   let user = this;
   try{
-    const decoded = await jwt.verify(token, 'secretToken');
-    const found_user = await user.findOne({"_id" :decoded, "token": token});
+    const decoded = await jwt.verify(token, secret);
+
+    const found_user = await user.findOne({"_id" :decoded.id, "token": token});
 
     return found_user;
   }catch(err){
@@ -98,14 +101,17 @@ const findVerifiedUser = async function(token){
   try{
     let user = this;
 
-    const decoded = await jwt.verify(token, 'secretToken');
-    const found_user = await user.findOne({"_id" :decoded, "token": token, "auth_email_verified":true});
+    const decoded = await jwt.verify(token, secret);
+    const found_user = await user.findOne({"_id" :decoded.id, "token": token, "auth_email_verified":true});
     if(!found_user) throw new CustomError(500,"토큰에 해당하는 유저를 찾을 수 없습니다.");
 
     return {err:null, user: found_user};
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return {err: err, status:400};
+    else if(err.name === 'TokenExipredError'){
+      return { err: err, status:419}
+    }
     else return {err:err, status:500}
   }
 }

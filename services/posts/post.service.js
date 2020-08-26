@@ -1,5 +1,6 @@
 const { Post } = require('../../models/Post');
 const {IPostDTO} = require('../../interfaces/IPost');
+const {IUserDTO} = require('../../interfaces/IUser');
 const {ErrorContainer} = require('../../containers/errors/message.error');
 const { User} = require('../../models/User');
 
@@ -18,13 +19,21 @@ const uploadPost = (req, res)=>{
     postInfo["target_language"] = req.user.target_language;
     postInfo["user_id"] = req.user._id;
 
+    const user =  req.user;
     const post = new Post(postInfo);
-    const saved = post.save((err,uploaded_post)=>{
+    const saved = post.save(async (err,uploaded_post)=>{
       try{
         if(err) throw new CustomError(500,'포스트 저장에서 에러');
         if(!uploaded_post) throw new CustomError(400,'업로드된 포스트가 없습니다.');
 
-        return res.status(200).json({ post_upload_success: true, uploaded_post});
+        const populated_post = await Post.findOne({_id: uploaded_post._id}).populate('user_id');
+
+        const ret_post = new IPostDTO(populated_post).getReturnPostInfo();
+        const ret_user = new IUserDTO(populated_post.user_id).getReturnUserInfo();
+        ret_post.user_id = ret_user;
+
+
+        return res.status(200).json({ post_upload_success: true, uploaded_post: ret_post});
       }catch(err){
         console.log(err);
         if( err instanceof CustomError) return res.status(err.status).send();
@@ -43,12 +52,14 @@ const displayOnePost = async (req,res)=>{
   try{
     if(!req.params._id) throw new CustomError(400, '요청 데이터 객체가 비어있습니다')
 
-    const found_post = await Post.findOne({_id: req.params._id, del_ny: false});
-
+    const found_post = await Post.findOne({_id: req.params._id, del_ny: false}).populate('user_id');
     if(!found_post) throw new CustomError(400, '해당 포스트 아이디로 찾을 수 없습니다.')
 
-    const postInfo = new IPostDTO(found_post).getOnePostInfo();
-    return res.status(200).json({display_one_post:true, postInfo});
+    const ret_post = new IPostDTO(found_post).getReturnPostInfo();
+    const ret_user = new IUserDTO(found_post.user_id).getReturnUserInfo();
+    ret_post.user_id = ret_user;
+
+    return res.status(200).json({display_one_post:true, postInfo: ret_post});
 
   }catch(err){
     console.log(err);
@@ -69,11 +80,15 @@ const updatePost = async (req, res)=>{
       if(hashtag.err) throw new CustomError(hashtag.status, "해시태그 찾기 및 저장에서 에러")
     }
 
-    const updated_post = await Post.findOneAndUpdate({_id:postInfo._id, del_ny: false},{$set:postInfo},{new:true, runValidators : true});
+    const updated_post = await Post.findOneAndUpdate({_id:postInfo._id, del_ny: false},{$set:postInfo},{new:true, runValidators : true}).populate('user_id');
 
     if(!updated_post) throw new CustomError(400, "해당 포스트가 수정되지 않았습니다.")
 
-    return res.status(200).json({update_post_success:true, updated_post});
+    const ret_post = new IPostDTO(updated_post).getReturnPostInfo();
+    const ret_user = new IUserDTO(updated_post.user_id).getReturnUserInfo();
+    ret_post.user_id = ret_user;
+
+    return res.status(200).json({update_post_success:true, updated_post : ret_post});
 
   }catch(err){
     console.log(err);
@@ -84,8 +99,6 @@ const updatePost = async (req, res)=>{
 
 const deletePost = async (req,res)=>{
   try{
-    if(!req.cookies.x_pla) throw new CustomError(400,"인증되지 않은 유저입니다.")
-
     if(!req.params._id) throw new CustomError(400,"포스트 아이디 데이터가 없습니다.")
 
     const token = req.cookies.x_pla;
@@ -94,11 +107,15 @@ const deletePost = async (req,res)=>{
     if(!user_id) throw new CustomError(400,"토큰에 해당하는 유저가 없습니다.")
 
     const post_id = req.params._id;
-    const deleted_post = await Post.findOneAndUpdate({_id:post_id, user_id: user_id, del_ny:false},{$set :{del_ny:true}},{new:true, runValidators:true});
+    const deleted_post = await Post.findOneAndUpdate({_id:post_id, user_id: user_id, del_ny:false},{$set :{del_ny:true}},{new:true, runValidators:true}).populate('user_id');
 
     if(!deleted_post) throw new CustomError(400,"요청 데이터가 올바르지 않아 제거되지 않았습니다.")
 
-    return res.status(200).json({delete_post_success:true, err: null});
+    const ret_post = new IPostDTO(deleted_post).getReturnPostInfo();
+    const ret_user = new IUserDTO(deleted_post.user_id).getReturnUserInfo();
+    ret_post.user_id = ret_user;
+
+    return res.status(200).json({delete_post_success:true, deleted_post: ret_post});
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return res.status(err.status).send();
