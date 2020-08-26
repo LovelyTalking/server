@@ -79,8 +79,9 @@ const updatePost = async (req, res)=>{
       const hashtag = await Post.findHashtagAndSave(postInfo.hashtags);
       if(hashtag.err) throw new CustomError(hashtag.status, "해시태그 찾기 및 저장에서 에러")
     }
-
-    const updated_post = await Post.findOneAndUpdate({_id:postInfo._id, del_ny: false},{$set:postInfo},{new:true, runValidators : true}).populate('user_id');
+    console.log(postInfo);
+    const updated_post = await Post.findByIdAndUpdate({_id:postInfo._id, del_ny: false},{
+      $set:{postInfo}},{new:true, runValidators : true}).populate('user_id');
 
     if(!updated_post) throw new CustomError(400, "해당 포스트가 수정되지 않았습니다.")
 

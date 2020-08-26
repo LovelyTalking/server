@@ -90,7 +90,7 @@ let ValidateImage = Service(()=>({
   check(image){
     try{
       //@desc check image length, file extension
-      return /.*(\.png|\.jpg\.bmp|\.gif|\.jpeg|\.svg)$/ig.test(image) && validator.isLength(image, {min:5, max:200});
+      return /.*(\.png|\.jpg|\.bmp|\.gif|\.jpeg|\.svg)$/ig.test(image) && validator.isLength(image, {min:5, max:200});
     }catch(err){
       console.log(err);
       return false;
