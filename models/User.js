@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema({
     type: String,
     trim: true,
     unique: true,
-    maxLength: 100,
+    maxLength: 300,
     required :true
   },
   name:{
@@ -58,7 +58,8 @@ const userSchema = mongoose.Schema({
   },
   post_count:{
     type: Number,
-    max: 10000
+    min: 0,
+    max: 100000000
   },
   token:{
     type: String

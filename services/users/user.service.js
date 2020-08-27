@@ -96,19 +96,25 @@ const loginUser = async (req,res)=>{
   }
 }
 
-const sendIsAuth = async (req,res)=>{
+const logoutUser = async (req,res)=>{
   try{
-    if(!req.user) throw new Custom(400, "인증된 유저가 아닙니다");
+    if(!req.cookies.x_pla) throw new CustomError(400, "쿠키 정보가 없습니다.")
 
-    const user = new IUserDTO(req.user).getAuthInfo();
+    const updated_user = await User.findOneAndUpdate({token : req.cookies.x_pla}, {$set : {token: ""}}, {new: true,runValidators:true});
 
-    res.status(200).json(user);
+    if(!updated_user) throw new CustomError(400, "토큰에 해당하는 유저가 없습니다.")
+
+    return res.status(200).clearCookie('x_pla').json({
+      logout_success: true,
+      err: null
+    })
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return res.status(err.status).send();
-    else  return res.status(500).send();
+    else return res.status(500).send();
   }
 }
+
 
 const uploadProfileImage = async (req,res)=>{
   try{
@@ -179,24 +185,7 @@ const updateUserInfo = async (req,res)=>{
   }
 }
 
-const logoutUser = async (req,res)=>{
-  try{
-    if(!req.cookies.x_pla) throw new CustomError(400, "쿠키 정보가 없습니다.")
 
-    const updated_user = await User.findOneAndUpdate({token : req.cookies.x_pla}, {$set : {token: ""}}, {new: true,runValidators:true});
-
-    if(!updated_user) throw new CustomError(400, "토큰에 해당하는 유저가 없습니다.")
-
-    return res.status(200).clearCookie('x_pla').json({
-      logout_success: true,
-      err: null
-    })
-  }catch(err){
-    console.log(err);
-    if( err instanceof CustomError) return res.status(err.status).send();
-    else return res.status(500).send();
-  }
-}
 
 const confirmUserPassword = async (req,res)=>{
   try{
@@ -270,6 +259,8 @@ const deleteUser = async (req,res)=>{
     let delete_info = new IUserDTO(req.body).getDeleteUserInfo();
 
     if(!delete_info._id) throw new CustomError(400, "요청 데이터의 유저id가 비어있습니다.")
+
+    if(delete_info._id !== req.user._id) throw new CustomError(400, "요청 데이터의 유저id와 해당 유저의 id가 다릅니다.")
 
     const deleted_user = await User.findOneAndUpdate({_id:delete_info._id, del_ny:false}, {$set : delete_info},{new:true,runValidators:true});
 
@@ -356,6 +347,21 @@ const displayUserList = async (req, res)=>{
     else return res.status(500).send();
   }
 }
+
+const sendIsAuth = async (req,res)=>{
+  try{
+    if(!req.user) throw new Custom(400, "인증된 유저가 아닙니다");
+
+    const user = new IUserDTO(req.user).getAuthInfo();
+
+    res.status(200).json(user);
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return res.status(err.status).send();
+    else  return res.status(500).send();
+  }
+}
+
 
 const CustomError = ErrorContainer.get('custom.error')
 
