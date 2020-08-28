@@ -4,7 +4,7 @@ class IPostDTO {
 
   constructor(postInfo){
     this.__id = postInfo._id;
-    this._user_id = postInfo.user_id;
+    this._posted_by = postInfo.posted_by;
     this._native_language =postInfo.native_language;
     this._target_language = postInfo.target_language;
     this._post_context = postInfo.post_context;
@@ -22,7 +22,7 @@ class IPostDTO {
 
   set PostInfo(postInfo){
     this.__id = postInfo._id;
-    this._user_id = postInfo.user_id;
+    this._posted_by = postInfo.posted_by;
     this._native_language =postInfo.native_language;
     this._target_language = postInfo.target_language;
     this._post_context = postInfo.post_context;
@@ -41,7 +41,7 @@ class IPostDTO {
   get PostInfo(){
     return {
       _id : this.__id,
-      user_id: this._user_id,
+      posted_by: this._posted_by,
       native_language: this._native_language,
       target_language: this._target_language,
       post_context: this._post_context,
@@ -61,14 +61,14 @@ class IPostDTO {
 
   getUploadCheck(){
     return {
-      user_id: this._user_id,
+      posted_by: this._posted_by,
       post_context: this._post_context
     }
   }
 
   getUploadPostInfo(){
     return {
-      user_id: this._user_id,
+      posted_by: this._posted_by,
       native_language: this._native_language,
       target_language: this._target_language,
       post_context: this._post_context,
@@ -81,7 +81,7 @@ class IPostDTO {
   getReturnPostInfo(){
     return {
       _id: this.__id,
-      user_id: this._user_id,
+      posted_by: this._posted_by,
       native_language: this._native_language,
       target_language: this._target_language,
       post_context: this._post_context,
@@ -97,14 +97,14 @@ class IPostDTO {
   getUpdateCheck(){
     return {
       _id: this.__id,
-      user_id: this._user_id,
+      posted_by: this._posted_by,
       post_context: this._post_context
     }
   }
   getUpdatePostInfo(){
     return {
       _id: this.__id,
-      user_id: this._user_id,
+      posted_by: this._posted_by,
       post_context: this._post_context,
       post_images: this._post_images,
       hashtags: this._hashtags,
@@ -130,7 +130,7 @@ class IPostListDTO extends IPostDTO{
 
   getUserRelatedSearchOptionInfo(){
     return {
-      user_id : super.PostInfo.user_id,
+      posted_by : super.PostInfo.posted_by,
       page_index: this._page_index,
       page_size: this._page_size
     }

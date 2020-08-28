@@ -8,7 +8,7 @@ const { validatePost} = require('../../middlewares/validator/validator')
   3) 해시태그 별 포스트 리스트
 */
 
-router.get('/user/:user_id/:page_index/:page_size',validatePost, postDisplayListServices.displayUserRelatedPostList);
+router.get('/user/:posted_by/:page_index/:page_size',validatePost, postDisplayListServices.displayUserRelatedPostList);
 
 router.get(
   '/lang/:native_language/:target_language/:page_index/:page_size',validatePost,

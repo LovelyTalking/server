@@ -14,7 +14,7 @@ const CustomError = ErrorContainer.get('custom.error');
 
 const uploadComment = async (req,res)=>{
   try{
-    req.body["user_id"] = String(req.user._id);
+    req.body["commented_by"] = String(req.user._id);
     const commentDTO = new ICommentDTO(req.body);
 
     const check_info = commentDTO.getCheckUploadInfo();
@@ -40,7 +40,7 @@ const uploadComment = async (req,res)=>{
 
 const deleteComment = async (req,res)=>{
   try{
-    req.params["user_id"] = String(req.user._id);
+    req.params["commented_by"] = String(req.user._id);
     const commentDTO = new ICommentDTO(req.params);
     const delete_info = commentDTO.getDeleteCommentInfo();
 

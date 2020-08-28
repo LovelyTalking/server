@@ -1,11 +1,11 @@
 const mongoose = require('../configs/mongo.db')
 
 const roomSchema = mongoose.Schema({
-  userA_id:{
+  userA:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
-  userB_id:{
+  userB:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },

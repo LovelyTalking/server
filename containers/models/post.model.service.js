@@ -55,12 +55,12 @@ const findHashtagAndSave = async function(hashtags){
 
 const findPostAndPushComment = async function(upload_info){
   try{
-    const post = await this.findOne({_id: upload_info.post_id, del_ny:false})
+    const post = await this.findById({_id: upload_info.post_id, del_ny:false})
 
     if(!post) throw new CustomError(500, "해당 포스트 정보가 없습니다.");
 
     const comment_index = await post.comment_object.push(upload_info);
-    await post.annotation_users.push(upload_info.user_id);
+    await post.annotation_users.push(upload_info.commented_by);
     const uploaded_post = await post.save();
 
     if(!uploaded_post) throw new CustomError(500,"포스트에 저장되지 않았습니다")
@@ -81,17 +81,18 @@ const findPostAndPushComment = async function(upload_info){
 
 const findPostAndDeleteComment = async function(delete_info, res){
   try{
-    const post = await this.findOne({_id: delete_info.post_id, del_ny:false});
+    console.log(delete_info);
+    const post = await this.findById({_id: delete_info.post_id, del_ny:false});
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     let comment_doc = post.comment_object.id(delete_info._id);
     if(!comment_doc) throw new CustomError(500,"해당 아이디의 댓글이 없습니다")
-    if(comment_doc.del_ny || comment_doc.user_id !== delete_info.user_id)
+    if(comment_doc.del_ny || String(comment_doc.commented_by) !== String(delete_info.commented_by))
       throw new CustomError(400, "해당 댓글은 지울 수 없습니다.")
 
     comment_doc.del_ny =true;
     comment_doc.delete_date = delete_info.delete_date;
-    const idx = post.annotation_users.indexOf(delete_info.user_id);
+    const idx = post.annotation_users.indexOf(delete_info.commented_by);
     if(idx === -1) throw new CustomError(500,"지운 댓글에 해당하는 작성자가 작성자 배열에 없습니다.");
     if(idx>-1) post.annotation_users.splice(idx,1);
 
@@ -114,11 +115,11 @@ const findPostAndDeleteComment = async function(delete_info, res){
 
 const findPostAndPushCorrection = async function(upload_info, res){
   try{
-    let post = await this.findOne({_id: upload_info.post_id, del_ny: false});
+    let post = await this.findById({_id: upload_info.post_id, del_ny: false});
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     const correct_index =post.correction_object.push(upload_info);
-    await post.annotation_users.push(upload_info.user_id);
+    await post.annotation_users.push(upload_info.correction_by);
 
     const uploaded_post = await post.save();
     if(!uploaded_post) throw new CustomError(500,"포스트에 저장되지 않았습니다");
@@ -139,17 +140,17 @@ const findPostAndPushCorrection = async function(upload_info, res){
 
 const findPostAndDeleteCorrection = async function(delete_info,res){
   try{
-    let post = await this.findOne({_id: delete_info.post_id, del_ny:false});
+    let post = await this.findById({_id: delete_info.post_id, del_ny:false});
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     let correction_doc = post.correction_object.id(delete_info._id);
     if(!correction_doc) throw new CustomError(500,"해당 아이디의 댓글이 없습니다")
-    if(correction_doc.del_ny || correction_doc.user_id !== delete_info.user_id)
+    if(correction_doc.del_ny || String(correction_doc.correction_by) !== String(delete_info.correction_by))
       throw new CustomError(400, "해당 댓글은 지울 수 없습니다.")
 
     correction_doc.del_ny =true;
     correction_doc.delete_date = delete_info.delete_date;
-    const idx = post.annotation_users.indexOf(delete_info.user_id);
+    const idx = post.annotation_users.indexOf(delete_info.correction_by);
     if(idx === -1) throw new CustomError(500,"지운 댓글에 해당하는 작성자가 작성자 배열에 없습니다.");
     if(idx>-1) post.annotation_users.splice(idx,1);
 
@@ -173,7 +174,7 @@ const findPostAndDeleteCorrection = async function(delete_info,res){
 const getCommentListOfPost = async function(search_info,res){
   try{
     let post = await this.findOne({_id: search_info.post_id, del_ny:false}).populate({
-        path:'comment_object.user_id',
+        path:'comment_object.commented_by',
         match: { del_ny: false},
         select: '_id name email native_language target_language gender profile_image'
     });
@@ -210,7 +211,7 @@ const getCommentListOfPost = async function(search_info,res){
 const getCorrectionListOfPost = async function(search_info,res){
   try{
     let post = await this.findOne({_id: search_info.post_id, del_ny:false}).populate({
-        path:'correction_object.user_id',
+        path:'correction_object.correction_by',
         match: { del_ny: false},
         select: '_id name email native_language target_language gender profile_image'
     });

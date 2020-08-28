@@ -4,7 +4,7 @@ class ICorrectionDTO {
   constructor(correction_info){
     this.__id = correction_info._id;
     this._post_id = correction_info.post_id;
-    this._user_id = correction_info.user_id;
+    this._correction_by = correction_info.correction_by;
     this._correction_context = correction_info.correction_context;
     this._word_index_arr = correction_info.word_index_arr,
     this._register_date = correction_info.register_date;
@@ -21,7 +21,7 @@ class ICorrectionDTO {
     return {
       _id : this.__id,
       post_id : this._post_id,
-      user_id : this._user_id,
+      correction_by : this._correction_by,
       correction_context : this._correction_context,
       word_index_arr : this._word_index_arr,
       register_date : this._register_date,
@@ -34,7 +34,7 @@ class ICorrectionDTO {
   getCheckUploadInfo(){
     return {
       post_id: this._post_id,
-      user_id: this._user_id,
+      correction_by: this._correction_by,
       correction_context : this._correction_context,
       word_index_arr: this._word_index_arr
     }
@@ -43,7 +43,7 @@ class ICorrectionDTO {
   getUploadCorrectionInfo(){
     return {
       post_id: this._post_id,
-      user_id: this._user_id,
+      correction_by: this._correction_by,
       correction_context : this._correction_context,
       word_index_arr : this._word_index_arr,
       register_date : moment().format()
@@ -53,7 +53,7 @@ class ICorrectionDTO {
   getDeleteCorrectionInfo(){
     return{
       _id : this.__id,
-      user_id : this._user_id,
+      correction_by : this._correction_by,
       post_id : this._post_id,
       delete_register: moment().format(),
       del_ny: true
@@ -63,7 +63,7 @@ class ICorrectionDTO {
   getReturnOneCorrectionInfo(){
     return {
       _id : this.__id,
-      user_id: this._user_id,
+      correction_by: this._correction_by,
       correction_context: this._correction_context,
       word_index_arr: this._word_index_arr,
       del_ny : this._del_ny,

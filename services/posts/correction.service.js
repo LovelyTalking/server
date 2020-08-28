@@ -14,7 +14,7 @@ const CustomError = ErrorContainer.get('custom.error');
 
 const uploadCorrection = async (req, res)=>{
   try{
-    req.body["user_id"] = String(req.user._id);
+    req.body["correction_by"] = String(req.user._id);
     const correctionDTO = new ICorrectionDTO(req.body);
 
     const check_info = correctionDTO.getCheckUploadInfo();
@@ -40,7 +40,7 @@ const uploadCorrection = async (req, res)=>{
 
 const deleteCorrection = async (req, res)=>{
   try{
-    req.params["user_id"] = String(req.user._id);
+    req.params["correction_by"] = String(req.user._id);
     const correctionDTO = new ICorrectionDTO(req.params);
     const delete_info = correctionDTO.getDeleteCorrectionInfo();
 

@@ -2,7 +2,7 @@ const mongoose = require('../configs/mongo.db.js');
 const {PostModelContainer} = require('../containers/models/post.model.service')
 
 const postSchema = mongoose.Schema({
-  user_id:{
+  posted_by:{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
@@ -40,7 +40,7 @@ const postSchema = mongoose.Schema({
   annotation_users: [String],
   comment_object:[{
     //@desc nested subdoc, _id는 자동 생성, 댓글 등록 수정 날짜 del_ny여부
-    user_id:{
+    commented_by:{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },
@@ -61,7 +61,7 @@ const postSchema = mongoose.Schema({
     }
   }],
   correction_object:[{
-    user_id:{
+    correction_by:{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },

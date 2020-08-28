@@ -34,12 +34,12 @@ const displayUserRelatedPostList = async (req,res)=>{
     [search_option, skip, limit] = checkReqInfo(checkInfo,res);
 
     const post_list = await Post.find(
-      {user_id:search_option.user_id, del_ny:false},
-      '_id user_id post_context post_images hashtags register_date',
+      {posted_by:search_option.posted_by, del_ny:false},
+      '_id posted_by post_context post_images hashtags register_date',
       { sort:'-register_date', skip: skip, limit: limit}
     )
       .populate({
-        path:'user_id',
+        path:'posted_by',
         match: { del_ny: false},
         select: '_id name email native_language target_language gender profile_image'
       })
@@ -69,11 +69,11 @@ const displayLangRelatedPostList = async(req,res)=>{
       { native_language:search_option.native_language,
       target_language:search_option.target_language,
       del_ny:false },
-      '_id user_id post_context post_images hashtags register_date',
+      '_id posted_by post_context post_images hashtags register_date',
       { sort:'-register_date',skip: skip, limit: limit}
     )
       .populate({
-        path:'user_id',
+        path:'posted_by',
         match: { del_ny: false},
         select: '_id name email native_language target_language gender profile_image'
       });
@@ -107,11 +107,11 @@ const displayHashtagRelatedPostList = async (req, res)=>{
         target_language: search_option.target_language,
         del_ny: false
       },
-      '_id user_id post_context post_images hashtags register_date',
+      '_id posted_by post_context post_images hashtags register_date',
       {sort:'-register_date', skip: skip, limit: limit}
     )
       .populate({
-        path:'user_id',
+        path:'posted_by',
         match: { del_ny: false},
         select: '_id name email native_language target_language gender profile_image'
       });

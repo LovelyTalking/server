@@ -4,7 +4,7 @@ class ICommentDTO {
   constructor(comment_info){
     this.__id = comment_info._id;
     this._post_id = comment_info.post_id;
-    this._user_id = comment_info.user_id;
+    this._commented_by = comment_info.commented_by;
     this._comment_context = comment_info.comment_context;
     this._register_date = comment_info.register_date;
     this._delete_date = comment_info.delete_date;
@@ -20,7 +20,7 @@ class ICommentDTO {
     return {
       _id : this.__id,
       post_id : this._post_id,
-      user_id : this._user_id,
+      commented_by : this._commented_by,
       comment_context : this._comment_context,
       register_date : this._register_date,
       delete_date : this._delete_date,
@@ -32,7 +32,7 @@ class ICommentDTO {
   getCheckUploadInfo(){
     return {
       post_id: this._post_id,
-      user_id: this._user_id,
+      commented_by: this._commented_by,
       comment_context : this._comment_context
     }
   }
@@ -40,7 +40,7 @@ class ICommentDTO {
   getUploadCommentInfo(){
     return {
       post_id: this._post_id,
-      user_id: this._user_id,
+      commented_by: this._commented_by,
       comment_context : this._comment_context,
       register_date : moment().format()
     }
@@ -49,7 +49,7 @@ class ICommentDTO {
   getDeleteCommentInfo(){
     return{
       _id : this.__id,
-      user_id : this._user_id,
+      commented_by : this._commented_by,
       post_id : this._post_id,
       delete_register: moment().format(),
       del_ny: true
@@ -59,7 +59,7 @@ class ICommentDTO {
   getReturnOneCommentInfo(){
     return {
       _id : this.__id,
-      user_id: this._user_id,
+      commented_by: this._commented_by,
       comment_context: this._comment_context,
       del_ny : this._del_ny,
       register_date : this._register_date,

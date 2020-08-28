@@ -17,7 +17,7 @@ const uploadPost = (req, res)=>{
     const postInfo = new IPostDTO(req.body).getUploadPostInfo();
     postInfo["native_language"] = req.user.native_language;
     postInfo["target_language"] = req.user.target_language;
-    postInfo["user_id"] = req.user._id;
+    postInfo["posted_by"] = req.user._id;
 
     const user =  req.user;
     const post = new Post(postInfo);
@@ -26,11 +26,11 @@ const uploadPost = (req, res)=>{
         if(err) throw new CustomError(500,'포스트 저장에서 에러');
         if(!uploaded_post) throw new CustomError(400,'업로드된 포스트가 없습니다.');
 
-        const populated_post = await Post.findOne({_id: uploaded_post._id}).populate('user_id');
+        const populated_post = await Post.findOne({_id: uploaded_post._id}).populate('posted_by');
 
         const ret_post = new IPostDTO(populated_post).getReturnPostInfo();
-        const ret_user = new IUserDTO(populated_post.user_id).getReturnUserInfo();
-        ret_post.user_id = ret_user;
+        const ret_user = new IUserDTO(populated_post.posted_by).getReturnUserInfo();
+        ret_post.posted_by = ret_user;
 
 
         return res.status(200).json({ post_upload_success: true, uploaded_post: ret_post});
@@ -52,12 +52,12 @@ const displayOnePost = async (req,res)=>{
   try{
     if(!req.params._id) throw new CustomError(400, '요청 데이터 객체가 비어있습니다')
 
-    const found_post = await Post.findOne({_id: req.params._id, del_ny: false}).populate('user_id');
+    const found_post = await Post.findOne({_id: req.params._id, del_ny: false}).populate('posted_by');
     if(!found_post) throw new CustomError(400, '해당 포스트 아이디로 찾을 수 없습니다.')
 
     const ret_post = new IPostDTO(found_post).getReturnPostInfo();
-    const ret_user = new IUserDTO(found_post.user_id).getReturnUserInfo();
-    ret_post.user_id = ret_user;
+    const ret_user = new IUserDTO(found_post.posted_by).getReturnUserInfo();
+    ret_post.posted_by = ret_user;
 
     return res.status(200).json({display_one_post:true, postInfo: ret_post});
 
@@ -81,13 +81,13 @@ const updatePost = async (req, res)=>{
     }
     console.log(postInfo);
     const updated_post = await Post.findByIdAndUpdate({_id:postInfo._id, del_ny: false},{
-      $set:{postInfo}},{new:true, runValidators : true}).populate('user_id');
+      $set:{postInfo}},{new:true, runValidators : true}).populate('posted_by');
 
     if(!updated_post) throw new CustomError(400, "해당 포스트가 수정되지 않았습니다.")
 
     const ret_post = new IPostDTO(updated_post).getReturnPostInfo();
-    const ret_user = new IUserDTO(updated_post.user_id).getReturnUserInfo();
-    ret_post.user_id = ret_user;
+    const ret_user = new IUserDTO(updated_post.posted_by).getReturnUserInfo();
+    ret_post.posted_by = ret_user;
 
     return res.status(200).json({update_post_success:true, updated_post : ret_post});
 
@@ -108,13 +108,13 @@ const deletePost = async (req,res)=>{
     if(!user_id) throw new CustomError(400,"토큰에 해당하는 유저가 없습니다.")
 
     const post_id = req.params._id;
-    const deleted_post = await Post.findOneAndUpdate({_id:post_id, user_id: user_id, del_ny:false},{$set :{del_ny:true}},{new:true, runValidators:true}).populate('user_id');
+    const deleted_post = await Post.findOneAndUpdate({_id:post_id, posted_by: user_id, del_ny:false},{$set :{del_ny:true}},{new:true, runValidators:true}).populate('posted_by');
 
     if(!deleted_post) throw new CustomError(400,"요청 데이터가 올바르지 않아 제거되지 않았습니다.")
 
     const ret_post = new IPostDTO(deleted_post).getReturnPostInfo();
-    const ret_user = new IUserDTO(deleted_post.user_id).getReturnUserInfo();
-    ret_post.user_id = ret_user;
+    const ret_user = new IUserDTO(deleted_post.posted_by).getReturnUserInfo();
+    ret_post.posted_by = ret_user;
 
     return res.status(200).json({delete_post_success:true, deleted_post: ret_post});
   }catch(err){

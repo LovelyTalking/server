@@ -333,12 +333,6 @@ module.exports = router;
  *        type: boolean
  *      register_auth:
  *        type: boolean
- *  RegisterDuplicateRequest:
- *    type: object
- *    properties:
- *      email:
- *        type: string
- *        description: check duplicated email
  *  RegisterDuplicateResponse:
  *    type: object
  *    properties:
@@ -457,11 +451,6 @@ module.exports = router;
  *        type: boolean
  *      err:
  *        type: string
- *  DisplayOneUserRequest:
- *    type: object
- *    properties:
- *      email:
- *        type: string
  *  DisplayOneUserResponse:
  *    type: object
  *    properties:
@@ -488,15 +477,7 @@ module.exports = router;
  *            type: string
  *          profile_text:
  *            type: string
- *  DisplayUserListRequest:
- *    type: object
- *    properties:
- *      name:
- *        type: string
- *      page_index:
- *        type: string
- *      page_size:
- *        type: string
+
  *  DisplayUserListResponse:
  *    type: object
  *    properties:
