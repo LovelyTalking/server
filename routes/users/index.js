@@ -20,7 +20,7 @@ router.use(validateUser);
  * @swagger
  * /users/register:
  *   post:
- *     sumary: sign up user
+ *     summary: sign up user
  *     tags: [User]
  *     parameters:
  *     - in: "body"
@@ -43,7 +43,7 @@ router.post('/register', userServices.registerUser );
  * @swagger
  * /users/register/{email}:
  *   get:
- *     sumary: email duplicate check
+ *     summary: email duplicate check
  *     tags: [User]
  *     parameters:
  *     - in: path
@@ -68,7 +68,7 @@ router.get('/confirmEmail', userServices.checkVerifyAuthEmail);
  * @swagger
  * /users/login:
  *   post:
- *     sumary: login user
+ *     summary: login user
  *     tags: [User]
  *     parameters:
  *     - in: "body"
@@ -91,7 +91,7 @@ router.post('/login', userServices.loginUser);
  * @swagger
  * /users/logout:
  *   get:
- *     sumary: logout user
+ *     summary: logout user
  *     tags: [User]
  *     responses:
  *       200:
@@ -106,7 +106,7 @@ router.get('/logout', authToken , userServices.logoutUser);
  * @swagger
  * /users/upload/profileImage:
  *   post:
- *     sumary: upload new profile_image
+ *     summary: upload new profile_image
  *     tags: [User]
  *     parameters:
  *     - in: "body"
@@ -128,7 +128,7 @@ router.post('/upload/profileImage', authToken, userServices.uploadProfileImage);
  * @swagger
  * /users/upload/profileText:
  *   post:
- *     sumary: upload new profile_text
+ *     summary: upload new profile_text
  *     tags: [User]
  *     parameters:
  *     - in: "body"
@@ -150,7 +150,7 @@ router.post('/upload/profileText', authToken, userServices.uploadProfileText);
  * @swagger
  * /users/update/user:
  *   post:
- *     sumary: update user info
+ *     summary: update user info
  *     tags: [User]
  *     parameters:
  *     - in: "body"
@@ -174,7 +174,7 @@ router.post('/update/user', authToken, userServices.updateUserInfo);
  * @swagger
  * /users/confirm/password:
  *   post:
- *     sumary: before update user ,password confirm password
+ *     summary: before update user ,password confirm password
  *     tags: [User]
  *     parameters:
  *     - in: "body"
@@ -196,7 +196,7 @@ router.post('/confirm/password', authToken, userServices.confirmUserPassword);
  * @swagger
  * /users/update/password:
  *   post:
- *     sumary: update user password
+ *     summary: update user password
  *     tags: [User]
  *     parameters:
  *     - in: "body"
@@ -218,7 +218,7 @@ router.post('/update/password', authToken, userServices.updateUserPassword);
  * @swagger
  * /users/delete:
  *   post:
- *     sumary: delete user
+ *     summary: delete user
  *     tags: [User]
  *     parameters:
  *     - in: "body"
@@ -241,7 +241,7 @@ router.post('/delete', authToken, userServices.deleteUser);
  * @swagger
  * /users/display/one/{_id}:
  *   get:
- *     sumary: display one user info
+ *     summary: display one user info
  *     tags: [User]
  *     parameters:
  *     - in: "path"
@@ -264,7 +264,7 @@ router.get('/display/one/:email', authToken, userServices.displayOneUser);
  * @swagger
  * /users/display/list/{name}/{page_index}/{page_size}:
  *   get:
- *     sumary: display one user info
+ *     summary: display one user info
  *     tags: [User]
  *     parameters:
  *     - in: "path"

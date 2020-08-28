@@ -55,7 +55,7 @@ const findHashtagAndSave = async function(hashtags){
 
 const findPostAndPushComment = async function(upload_info){
   try{
-    const post = await this.findById({_id: upload_info.post_id, del_ny:false})
+    const post = await this.findById({_id: upload_info.post_id}).where({del_ny:false})
 
     if(!post) throw new CustomError(500, "해당 포스트 정보가 없습니다.");
 
@@ -82,7 +82,7 @@ const findPostAndPushComment = async function(upload_info){
 const findPostAndDeleteComment = async function(delete_info, res){
   try{
     console.log(delete_info);
-    const post = await this.findById({_id: delete_info.post_id, del_ny:false});
+    const post = await this.findById({_id: delete_info.post_id}).where({del_ny:false});
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     let comment_doc = post.comment_object.id(delete_info._id);
@@ -115,7 +115,7 @@ const findPostAndDeleteComment = async function(delete_info, res){
 
 const findPostAndPushCorrection = async function(upload_info, res){
   try{
-    let post = await this.findById({_id: upload_info.post_id, del_ny: false});
+    let post = await this.findById({_id: upload_info.post_id}).where({del_ny:false});
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     const correct_index =post.correction_object.push(upload_info);
@@ -140,7 +140,7 @@ const findPostAndPushCorrection = async function(upload_info, res){
 
 const findPostAndDeleteCorrection = async function(delete_info,res){
   try{
-    let post = await this.findById({_id: delete_info.post_id, del_ny:false});
+    let post = await this.findById({_id: delete_info.post_id}).where({del_ny:false});
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     let correction_doc = post.correction_object.id(delete_info._id);
@@ -173,7 +173,7 @@ const findPostAndDeleteCorrection = async function(delete_info,res){
 
 const getCommentListOfPost = async function(search_info,res){
   try{
-    let post = await this.findOne({_id: search_info.post_id, del_ny:false}).populate({
+    let post = await this.findById({_id: search_info.post_id}).where({del_ny:false}).populate({
         path:'comment_object.commented_by',
         match: { del_ny: false},
         select: '_id name email native_language target_language gender profile_image'
@@ -210,7 +210,7 @@ const getCommentListOfPost = async function(search_info,res){
 
 const getCorrectionListOfPost = async function(search_info,res){
   try{
-    let post = await this.findOne({_id: search_info.post_id, del_ny:false}).populate({
+    let post = await this.findById({_id: search_info.post_id}).where({del_ny:false}).populate({
         path:'correction_object.correction_by',
         match: { del_ny: false},
         select: '_id name email native_language target_language gender profile_image'

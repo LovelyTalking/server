@@ -81,7 +81,7 @@ const displayCommentList = async (req,res)=>{
     return res.status(200).json({
       display_comment_list_success: true,
       next_page_index:  list_info.next_page_index,
-      comment_list: list_info
+      comment_list: list_info.comment_list
     });
   }catch(err){
     console.log(err);

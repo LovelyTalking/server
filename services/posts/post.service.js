@@ -52,7 +52,7 @@ const displayOnePost = async (req,res)=>{
   try{
     if(!req.params._id) throw new CustomError(400, '요청 데이터 객체가 비어있습니다')
 
-    const found_post = await Post.findOne({_id: req.params._id, del_ny: false}).populate('posted_by');
+    const found_post = await Post.findById({_id: req.params._id}).where({del_ny:false}).populate('posted_by');
     if(!found_post) throw new CustomError(400, '해당 포스트 아이디로 찾을 수 없습니다.')
 
     const ret_post = new IPostDTO(found_post).getReturnPostInfo();
@@ -79,14 +79,17 @@ const updatePost = async (req, res)=>{
       const hashtag = await Post.findHashtagAndSave(postInfo.hashtags);
       if(hashtag.err) throw new CustomError(hashtag.status, "해시태그 찾기 및 저장에서 에러")
     }
-    console.log(postInfo);
-    const updated_post = await Post.findByIdAndUpdate({_id:postInfo._id, del_ny: false},{
-      $set:{postInfo}},{new:true, runValidators : true}).populate('posted_by');
 
-    if(!updated_post) throw new CustomError(400, "해당 포스트가 수정되지 않았습니다.")
 
-    const ret_post = new IPostDTO(updated_post).getReturnPostInfo();
-    const ret_user = new IUserDTO(updated_post.posted_by).getReturnUserInfo();
+    const update_post = await Post.findById({_id:postInfo._id})
+      .where({del_ny:true})
+      .populate('posted_by');
+    console.log(update_post);
+    if(!update_post) throw new CustomError(400, "해당 포스트가 수정되지 않았습니다.")
+
+    await update_post.updateOne({$set:postInfo});
+    const ret_post = new IPostDTO(update_post).getReturnPostInfo();
+    const ret_user = new IUserDTO(update_post.posted_by).getReturnUserInfo();
     ret_post.posted_by = ret_user;
 
     return res.status(200).json({update_post_success:true, updated_post : ret_post});

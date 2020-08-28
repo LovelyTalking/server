@@ -81,7 +81,7 @@ const displayCorrectionList = async (req,res)=>{
     return res.status(200).json({
       display_correction_list_success: true,
       next_page_index:  list_info.next_page_index,
-      correction_list: list_info
+      correction_list: list_info.correction_list
     });
   }catch(err){
     console.log(err);
