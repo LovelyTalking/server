@@ -119,6 +119,33 @@ router.post('/update',  validatePost, postServices.updatePost);
 */
 router.get('/delete/:_id',  validatePost, postServices.deletePost);
 
+/**
+ * @swagger
+ * /posts/like/{post_id}:
+ *   get:
+ *     summary: update like user in post
+ *     tags : [Post]
+ *     parameters:
+ *     - in: "path"
+ *       name: "post_id"
+ *       required: true
+ *       schema:
+ *         type: string
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             update_like_success:
+ *               type: boolean
+ *             like_info:
+ *               type: object
+ *               $ref: '#/definitions/UpdateLikeResponse'
+ *
+ *
+*/
+router.get('/like/:post_id', validatePost, postServices.updateLike);
+
 router.use('/display/list', postList);
 router.use('/comment',comment);
 router.use('/correction',correction);
@@ -211,5 +238,14 @@ module.exports = router;
  *         type: array
  *         items:
  *           type:string
-
+ *   UpdateLikeResponse:
+ *     type: object
+ *     properties:
+ *       post_id:
+ *         type: string
+ *       like_users:
+ *         type: array
+ *         items:
+ *           type: string
+ *
 */

@@ -36,8 +36,14 @@ const postSchema = mongoose.Schema({
       maxLength: 30,
       minLength: 2
   }],
-  like_users: [String],
-  annotation_users: [String],
+  like_users: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  annotation_users: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   comment_object:[{
     //@desc nested subdoc, _id는 자동 생성, 댓글 등록 수정 날짜 del_ny여부
     commented_by:{
@@ -106,7 +112,7 @@ postSchema.statics.findPostAndPushCorrection = PostModelContainer.get('find.post
 postSchema.statics.findPostAndDeleteCorrection = PostModelContainer.get('find.post.delete.correction');
 postSchema.statics.getCommentListOfPost = PostModelContainer.get('get.comment.list.of.post')
 postSchema.statics.getCorrectionListOfPost = PostModelContainer.get('get.correction.list.of.post');
-
+postSchema.statics.updateLikeInPost = PostModelContainer.get('update.like.in.post');
 
 const Post = mongoose.model('Post', postSchema);
 

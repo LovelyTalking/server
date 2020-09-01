@@ -12,9 +12,9 @@ class ICommentDTO {
     this._annotation_size = 0;
   }
 
-   set annotaion_size(size){
-     this._annotation_size = size;
-   }
+  set annotaion_size(size){
+    this._annotation_size = size;
+  }
 
   get CommentInfo(){
     return {

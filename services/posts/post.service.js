@@ -127,6 +127,21 @@ const deletePost = async (req,res)=>{
   }
 }
 
+const updateLike = async (req, res)=>{
+  try{
+    let updated_like = await Post.updateLikeInPost(req);
+    if(updated_like.err) throw new CustomError(updated_like.status, "포스트의 좋아요 업데이트에 에러가 발생했습니다.")
+
+    const { post_id, like_users} = updated_like.post;
+
+    return res.status(200).json({update_like_success: true, like_info: {post_id,like_users}})
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return res.status(err.status).send();
+    else return res.status(500).send();
+  }
+}
+
 module.exports = {
-  uploadPost, displayOnePost, updatePost, deletePost
+  uploadPost, displayOnePost, updatePost, deletePost, updateLike
 }

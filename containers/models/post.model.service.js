@@ -5,9 +5,11 @@ const {ICommentDTO} = require('../../interfaces/IComment');
 const {ICorrectionDTO} = require('../../interfaces/ICorrection');
 const {IUserDTO} = require('../../interfaces/IUser');
 const {ErrorContainer} = require('../errors/message.error');
+const mongoose = require('mongoose')
 
 const CustomError= ErrorContainer.get('custom.error');
 
+// @desc 포스트 관련 포스트 디비 모델 서비스
 const checkHashtagAndUpdate = function(next){
   let post = this;
   let hashtags = post.hashtags;
@@ -53,6 +55,28 @@ const findHashtagAndSave = async function(hashtags){
   }
 }
 
+const updateLikeInPost = async function(req){
+  try{
+    let post_id = req.params.post_id;
+    let post = await this.findById({_id: post_id}).where({del_ny:false});
+    if(!post) throw new CustomError(400, "요청에 해당하는 포스트가 존재하지 않습니다.")
+
+    let user_index = post.like_users.indexOf(req.user._id)
+    if(user_index === -1)
+      post.like_users.push(req.user._id);
+    else
+      post.like_users.pull(mongoose.Types.ObjectId(req.user._id));
+
+    await post.save();
+    return {err: null, post};
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return {err: err, status:400};
+    else return {err:err, status:500}
+  }
+}
+
+// @desc 댓글 관련 포스트 디비 모델 서비스
 const findPostAndPushComment = async function(upload_info){
   try{
     const post = await this.findById({_id: upload_info.post_id}).where({del_ny:false})
@@ -113,6 +137,8 @@ const findPostAndDeleteComment = async function(delete_info, res){
   }
 }
 
+
+// @desc 첨삭 관련 포스트 디비 모델 서비스
 const findPostAndPushCorrection = async function(upload_info, res){
   try{
     let post = await this.findById({_id: upload_info.post_id}).where({del_ny:false});
@@ -254,4 +280,5 @@ PostModelContainer.set('find.post.push.correction', findPostAndPushCorrection);
 PostModelContainer.set('find.post.delete.correction', findPostAndDeleteCorrection);
 PostModelContainer.set('get.comment.list.of.post', getCommentListOfPost);
 PostModelContainer.set('get.correction.list.of.post', getCorrectionListOfPost);
+PostModelContainer.set('update.like.in.post',updateLikeInPost);
 module.exports = { PostModelContainer }

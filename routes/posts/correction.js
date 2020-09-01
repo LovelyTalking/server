@@ -118,6 +118,9 @@ module.exports = router;
  *         type: string
  *       correction_context:
  *         type: string
+ *       word_index_arr:
+ *         type: array
+ *         items:
  *   DisplayCorrectionResponse:
  *     type: object
  *     properties:
