@@ -121,6 +121,7 @@ module.exports = router;
  *       word_index_arr:
  *         type: array
  *         items:
+ *           type: number 
  *   DisplayCorrectionResponse:
  *     type: object
  *     properties:
