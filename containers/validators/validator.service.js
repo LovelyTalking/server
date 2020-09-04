@@ -129,7 +129,6 @@ let ValidateArrayLength = Service(()=>({
 
   check(limit, size){
     try{
-
       return size >= 0 && limit >= size;
     }catch(err){
       console.log(err);
@@ -310,7 +309,7 @@ const CommentValidationService = Service([
 
 const CorrectionValidationService = Service([
   ValidateMongoID, ValidateText, ValidateInteger, ValidateArrayLength, ValidateElementDuplicate
-], (mongoID, correction_context , integer, array_len, array_dup )=>{
+], (mongoID, text , integer, array_len, array_dup )=>{
   const validateCorrectionRequestInfo = function(correction){
     try{
       if(correction.hasOwnProperty('_id') && !mongoID.check(correction._id))
@@ -325,17 +324,14 @@ const CorrectionValidationService = Service([
     if(correction.hasOwnProperty('page_size') && !integer.check(correction.page_size))
       throw "page_size is invalid"
 
-    if(correction.hasOwnProperty('word_index_arr')){
-      if(!array_dup.check(correction.word_index_arr))
-        throw "word_index_arr element duplicate check is invalid"
-
-      correction.word_index_arr.some(word_index=>{
-        if(!integer.check(word_index)) throw "word_index is invalid"
+    if(correction.hasOwnProperty('correction_context'))
+      correction.correction_context.some(context=>{
+        if(!text.check(context,1000)) throw "correction_context is invalid"
       })
-    }
 
-    if(correction.hasOwnProperty('correction_context') && !correction_context.check(correction.correction_context,4000))
-      throw "comment_context is invalid"
+
+    if(correction.hasOwnProperty('additional_text') && !text.check(correction.additional_text,2000))
+      throw "additional_text is invalid"
 
     return true;
     }catch(err){
