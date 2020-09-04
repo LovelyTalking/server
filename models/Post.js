@@ -40,10 +40,10 @@ const postSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  annotation_users: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
+  annotation_count:{
+    type: Number,
+    default: 0
+  },
   comment_object:[{
     //@desc nested subdoc, _id는 자동 생성, 댓글 등록 수정 날짜 del_ny여부
     commented_by:{

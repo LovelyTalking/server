@@ -11,7 +11,7 @@ class IPostDTO {
     this._post_images = postInfo.post_images;
     this._hashtags= postInfo.hashtags || [];
     this._like_users = postInfo.like_users || [];
-    this._annotation_users= postInfo.annotation_users || [];
+    this._annotation_count= postInfo.annotation_count || 0;
     this._comment_object = postInfo.comment_object || [];
     this._correction_object= postInfo.correction_object|| [];
     this._register_date = postInfo.register_date;
@@ -29,7 +29,7 @@ class IPostDTO {
     this._post_images = postInfo.post_images;
     this._hashtags= postInfo.hashtags;
     this._like_users = postInfo.like_users;
-    this._annotation_users= postInfo.annotation_users;
+    this._annotation_count= postInfo.annotation_count;
     this._comment_object = postInfo.comment_object;
     this._correction_object= postInfo.correction_object;
     this._register_date = postInfo.register_date;
@@ -48,7 +48,7 @@ class IPostDTO {
       post_images : this._post_images,
       hashtags : this._hashtags,
       like_users :this._like_users,
-      annotation_users: this._annotation_users,
+      annotation_count: this._annotation_count,
       comment_object : this._comment_object,
       correction_object: this._correction_object,
       register_date : this._register_date,
@@ -88,9 +88,8 @@ class IPostDTO {
       post_images: this._post_images,
       hashtags: this._hashtags,
       like_users: this._like_users ,
-      count_like : this._like_users.length,
-      annotation_users: this._annotation_users ,
-      count_annotation : this._annotation_users.length
+      annotation_count: this._annotation_count ,
+      count_annotation : this._annotation_count.length
     }
   }
 
@@ -150,6 +149,14 @@ class IPostListDTO extends IPostDTO{
       native_language : super.PostInfo.native_language,
       target_language : super.PostInfo.target_language,
       hashtag_name : this._hashtag_name,
+      page_index: this._page_index,
+      page_size: this._page_size
+    }
+  }
+
+  getLikeUserRelatedSearchOptionInfo(){
+    return {
+      post_id : super.PostInfo._id,
       page_index: this._page_index,
       page_size: this._page_size
     }

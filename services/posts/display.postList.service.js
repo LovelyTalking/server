@@ -35,7 +35,7 @@ const displayUserRelatedPostList = async (req,res)=>{
 
     const post_list = await Post.find(
       {posted_by:search_option.posted_by, del_ny:false},
-      '_id posted_by post_context post_images hashtags register_date',
+      '_id posted_by post_context post_images hashtags register_date annotation_count like_users',
       { sort:'-register_date', skip: skip, limit: limit}
     )
       .populate({
@@ -69,7 +69,7 @@ const displayLangRelatedPostList = async(req,res)=>{
       { native_language:search_option.native_language,
       target_language:search_option.target_language,
       del_ny:false },
-      '_id posted_by post_context post_images hashtags register_date',
+      '_id posted_by post_context post_images hashtags register_date annotation_count like_users',
       { sort:'-register_date',skip: skip, limit: limit}
     )
       .populate({
@@ -107,7 +107,7 @@ const displayHashtagRelatedPostList = async (req, res)=>{
         target_language: search_option.target_language,
         del_ny: false
       },
-      '_id posted_by post_context post_images hashtags register_date',
+      '_id posted_by post_context post_images hashtags register_date annotation_count like_users',
       {sort:'-register_date', skip: skip, limit: limit}
     )
       .populate({
@@ -127,6 +127,36 @@ const displayHashtagRelatedPostList = async (req, res)=>{
   }
 }
 
+const displayLikeUserlistInPost = async (req, res)=>{
+  try{
+    const check_info = new IPostListDTO(req.params).getLikeUserRelatedSearchOptionInfo();
+
+    let search_option ={};
+    let skip = 0;
+    let limit = 0;
+    [search_option, skip, limit] = checkReqInfo(check_info,res);
+
+    // @desc limit는 무조건 양수로
+    const post = await Post.findById({_id: search_option.post_id})
+      .where({del_ny:false})
+      .select({like_users: { $slice: [skip, limit] } })
+      .populate({
+        path:'like_users',
+        select: '_id name native_language target_language gender profile_image'
+      });
+    if(!post) throw new CustomError(400,"요청 데이터에 해당 하는 포스트가 없습니다.")
+
+    const user_list = post.like_users;
+
+    return res.status(200).json({display_like_userList_success:true, page_index: search_option.page_index, display_info: user_list});
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return res.status(err.status).send();
+    else return res.status(500).send();
+  }
+}
+
 module.exports = {
-  displayUserRelatedPostList, displayLangRelatedPostList, displayHashtagRelatedPostList
+  displayUserRelatedPostList, displayLangRelatedPostList, displayHashtagRelatedPostList,
+  displayLikeUserlistInPost
 }

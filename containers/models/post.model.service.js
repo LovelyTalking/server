@@ -68,6 +68,7 @@ const updateLikeInPost = async function(req){
       post.like_users.pull(mongoose.Types.ObjectId(req.user._id));
 
     await post.save();
+
     return {err: null, post};
   }catch(err){
     console.log(err);
@@ -84,13 +85,14 @@ const findPostAndPushComment = async function(upload_info){
     if(!post) throw new CustomError(500, "해당 포스트 정보가 없습니다.");
 
     const comment_index = await post.comment_object.push(upload_info);
-    await post.annotation_users.push(upload_info.commented_by);
+    ++post.annotation_count;
+
     const uploaded_post = await post.save();
 
     if(!uploaded_post) throw new CustomError(500,"포스트에 저장되지 않았습니다")
 
     let uploaded_comment = new ICommentDTO(post.comment_object[comment_index-1]).getReturnOneCommentInfo();
-    uploaded_comment.annotation_size = post.annotation_users.length;
+    uploaded_comment.annotation_size = post.annotation_count;
 
     return {
       err: null,
@@ -116,15 +118,14 @@ const findPostAndDeleteComment = async function(delete_info, res){
 
     comment_doc.del_ny =true;
     comment_doc.delete_date = delete_info.delete_date;
-    const idx = post.annotation_users.indexOf(delete_info.commented_by);
-    if(idx === -1) throw new CustomError(500,"지운 댓글에 해당하는 작성자가 작성자 배열에 없습니다.");
-    if(idx>-1) post.annotation_users.splice(idx,1);
+    if(post.annotation_count === 0) throw new CustomError(500,"댓글의 개수가 0개이므로 지울수 없습니다.")
+    --post.annotation_count;
 
     const deleted_post = await post.save();
     if(!deleted_post) throw new CustomError(500,"해당 포스트에 저장되지 않았습니다.");
 
     let deleted_comment = new ICommentDTO(comment_doc).getReturnOneCommentInfo();
-    deleted_comment.annotation_size = deleted_post.annotation_users.length;
+    deleted_comment.annotation_size = deleted_post.annotation_count;
 
     return {
       err: null,
@@ -145,13 +146,13 @@ const findPostAndPushCorrection = async function(upload_info, res){
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
 
     const correct_index =post.correction_object.push(upload_info);
-    await post.annotation_users.push(upload_info.correction_by);
+    ++post.annotation_count;
 
     const uploaded_post = await post.save();
     if(!uploaded_post) throw new CustomError(500,"포스트에 저장되지 않았습니다");
 
     const uploaded_correction = new ICorrectionDTO(post.correction_object[correct_index-1]).getReturnOneCorrectionInfo();
-    uploaded_correction.annotation_size = uploaded_post.annotation_users.length;
+    uploaded_correction.annotation_size = uploaded_post.annotation_count;
 
     return {
       err: null,
@@ -176,15 +177,15 @@ const findPostAndDeleteCorrection = async function(delete_info,res){
 
     correction_doc.del_ny =true;
     correction_doc.delete_date = delete_info.delete_date;
-    const idx = post.annotation_users.indexOf(delete_info.correction_by);
-    if(idx === -1) throw new CustomError(500,"지운 댓글에 해당하는 작성자가 작성자 배열에 없습니다.");
-    if(idx>-1) post.annotation_users.splice(idx,1);
+
+    if(post.annotation_count === 0) throw new CustomError(500,"댓글의 개수가 0개이므로 지울수 없습니다.")
+    --post.annotation_count;
 
     const deleted_post = await post.save();
     if(!deleted_post) throw new CustomError(500,"해당 포스트에 저장되지 않았습니다.");
 
     let deleted_correction = new ICorrectionDTO(correction_doc).getReturnOneCorrectionInfo();
-    deleted_correction.annotation_size = deleted_post.annotation_users.length;
+    deleted_correction.annotation_size = deleted_post.annotation_count;
 
     return {
       err: null,

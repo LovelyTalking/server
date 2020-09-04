@@ -143,6 +143,47 @@ router.get(
   postDisplayListServices.displayHashtagRelatedPostList
 );
 
+/**
+ * @swagger
+ * /posts/display/list/like_users/{post_id}/{page_index}/{page_size}:
+ *   get:
+ *     summary: display user list in post using post_id
+ *     tags: [Post]
+ *     parameters:
+ *     - in: "path"
+ *       name: "_id"
+ *       required: true
+ *       schema:
+ *         type: string
+ *     - in: "path"
+ *       name: "page_index"
+ *       required: true
+ *       schema:
+ *         type: string
+ *     - in: "path"
+ *       name: "page_size"
+ *       required: true
+ *       schema:
+ *         type: string
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             display_like_userList_success:
+ *               type: boolean
+ *             page_index:
+ *               type: number
+ *             display_info:
+ *               type: array
+ *               items:
+ *                 $ref: '#/definitions/DisplayUserlistResponse'
+*/
+router.get(
+  '/like_users/:_id/:page_index/:page_size',validatePost,
+  postDisplayListServices.displayLikeUserlistInPost
+);
+
 module.exports = router;
 
 
@@ -185,4 +226,19 @@ module.exports = router;
  *             type: string
  *         register_date:
  *           type: string
+ *   DisplayUserlistResponse:
+ *     type: object
+ *     properties:
+ *       _id:
+ *         type: string
+ *       name:
+ *         type: string
+ *       native_language:
+ *         type: string
+ *       target_language:
+ *         type: string
+ *       gender:
+ *         type: string
+ *       profile_image:
+ *         type: string
 */
