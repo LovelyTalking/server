@@ -117,11 +117,16 @@ module.exports = router;
  *       post_id:
  *         type: string
  *       correction_context:
- *         type: string
- *       word_index_arr:
  *         type: array
  *         items:
- *           type: number 
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             modified:
+ *               type: boolean
+ *       additional_text:
+ *         type: string
  *   DisplayCorrectionResponse:
  *     type: object
  *     properties:
@@ -130,11 +135,16 @@ module.exports = router;
  *       correction_by:
  *         type: string
  *       correction_context:
- *         type: string
- *       word_index_arr:
  *         type: array
  *         items:
- *           type: number
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             modified:
+ *               type: boolean
+ *       additional_text:
+ *         type: string
  *       del_ny:
  *         type: boolean
  *       register_date:
@@ -161,12 +171,17 @@ module.exports = router;
  *             type: string
  *           gender:
  *             type: string
- *       word_index_arr:
+ *       additional_text:
+ *         type: string
+ *       correction_context:
  *         type: array
  *         items:
- *           type: number
- *       correction_context:
- *         type: string
+ *           type: object
+ *           properties:
+ *             text:
+ *               type: string
+ *             modified:
+ *               type: boolean 
  *       del_ny:
  *         type: boolean
  *       register_date:

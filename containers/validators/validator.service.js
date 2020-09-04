@@ -163,6 +163,18 @@ let ValidateHashtag = Service(()=>({
   }
 }))
 
+let ValidateBoolean = Service(()=>({
+
+  check(is_bool){
+    try{
+      return (typeof is_bool === "boolean")
+    }catch(err){
+      console.log(err);
+      return false;
+    }
+  }
+}))
+
 //ValidateUserID ValidateEmail ValidatePassword ValidateLang ValidateGender ValidateProfileImage ValidateProfileContext
 const UserValidationService = Service([
   ValidateMongoID, ValidateEmail, ValidatePassword,
@@ -308,8 +320,9 @@ const CommentValidationService = Service([
 })
 
 const CorrectionValidationService = Service([
-  ValidateMongoID, ValidateText, ValidateInteger, ValidateArrayLength, ValidateElementDuplicate
-], (mongoID, text , integer, array_len, array_dup )=>{
+  ValidateMongoID, ValidateText, ValidateInteger, ValidateArrayLength,
+  ValidateElementDuplicate, ValidateBoolean
+], (mongoID, text , integer, array_len, array_dup, is_bool )=>{
   const validateCorrectionRequestInfo = function(correction){
     try{
       if(correction.hasOwnProperty('_id') && !mongoID.check(correction._id))
@@ -326,7 +339,7 @@ const CorrectionValidationService = Service([
 
     if(correction.hasOwnProperty('correction_context'))
       correction.correction_context.some(context=>{
-        if(!text.check(context,1000)) throw "correction_context is invalid"
+        if(!text.check(context.text,1000) || !is_bool.check(context.modified)) throw "correction_context is invalid"
       })
 
 

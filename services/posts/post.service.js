@@ -133,8 +133,9 @@ const updateLike = async (req, res)=>{
     if(updated_like.err) throw new CustomError(updated_like.status, "포스트의 좋아요 업데이트에 에러가 발생했습니다.")
 
     const { _id, like_users} = updated_like.post;
+    const is_like = updated_like.is_like;
 
-    return res.status(200).json({update_like_success: true, like_info: {post_id:_id,like_users}})
+    return res.status(200).json({update_like_success: true, like_info: {is_like, post_id:_id,like_users}})
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return res.status(err.status).send();

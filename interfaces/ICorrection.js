@@ -6,7 +6,7 @@ class ICorrectionDTO {
     this._post_id = correction_info.post_id;
     this._correction_by = correction_info.correction_by;
     this._correction_context = correction_info.correction_context;
-    this._word_index_arr = correction_info.word_index_arr,
+    this._additional_text = correction_info.additional_text,
     this._register_date = correction_info.register_date;
     this._delete_date = correction_info.delete_date;
     this._del_ny = correction_info.del_ny;
@@ -23,7 +23,7 @@ class ICorrectionDTO {
       post_id : this._post_id,
       correction_by : this._correction_by,
       correction_context : this._correction_context,
-      word_index_arr : this._word_index_arr,
+      additional_text : this._additional_text,
       register_date : this._register_date,
       delete_date : this._delete_date,
       del_ny: this._del_ny,
@@ -35,8 +35,7 @@ class ICorrectionDTO {
     return {
       post_id: this._post_id,
       correction_by: this._correction_by,
-      correction_context : this._correction_context,
-      word_index_arr: this._word_index_arr
+      correction_context : this._correction_context
     }
   }
 
@@ -45,7 +44,7 @@ class ICorrectionDTO {
       post_id: this._post_id,
       correction_by: this._correction_by,
       correction_context : this._correction_context,
-      word_index_arr : this._word_index_arr,
+      additional_text : this._additional_text,
       register_date : moment().format()
     }
   }
@@ -65,7 +64,7 @@ class ICorrectionDTO {
       _id : this.__id,
       correction_by: this._correction_by,
       correction_context: this._correction_context,
-      word_index_arr: this._word_index_arr,
+      additional_text: this._additional_text,
       del_ny : this._del_ny,
       register_date : this._register_date,
       annotation_size : this._annotation_size

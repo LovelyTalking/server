@@ -62,14 +62,18 @@ const updateLikeInPost = async function(req){
     if(!post) throw new CustomError(400, "요청에 해당하는 포스트가 존재하지 않습니다.")
 
     let user_index = post.like_users.indexOf(req.user._id)
-    if(user_index === -1)
+    let is_like =false;
+    if(user_index === -1){
       post.like_users.push(req.user._id);
-    else
+      is_like = true;
+    }
+    else{
       post.like_users.pull(mongoose.Types.ObjectId(req.user._id));
+    }
 
     await post.save();
 
-    return {err: null, post};
+    return {err: null, is_like, post};
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return {err: err, status:400};
@@ -144,6 +148,7 @@ const findPostAndPushCorrection = async function(upload_info, res){
   try{
     let post = await this.findById({_id: upload_info.post_id}).where({del_ny:false});
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
+    console.log(upload_info);
 
     const correct_index =post.correction_object.push(upload_info);
     ++post.annotation_count;

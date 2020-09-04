@@ -241,6 +241,8 @@ module.exports = router;
  *   UpdateLikeResponse:
  *     type: object
  *     properties:
+ *       is_like:
+ *         type: boolean 
  *       post_id:
  *         type: string
  *       like_users:

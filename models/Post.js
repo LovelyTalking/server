@@ -71,12 +71,22 @@ const postSchema = mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
     },
-    correction_context: {
+    correction_context: [{
+      text:{
+        type: String,
+        minLength:0,
+        maxLength:1500
+      },
+      modified:{
+        type: Boolean,
+        default: false
+      }
+    }],
+    additional_text:{
       type: String,
-      minLength: 2,
-      maxLength: 4000
+      minLength: 0,
+      maxLength: 2000
     },
-    word_index_arr :[Number],
     register_date: {
       type: String
     },
