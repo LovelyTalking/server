@@ -2,7 +2,7 @@ const router = require('express').Router();
 const userServices = require('../../services/users/user.service')
 const { AuthContainer } = require('../../middlewares/auth/auth')
 const { validateUser} = require('../../middlewares/validator/validator')
-// TODO: make container/auth/checkUser.js
+
 const authToken = AuthContainer.get("auth.User");
 
 

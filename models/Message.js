@@ -1,13 +1,15 @@
 const mongoose = require('../configs/mongo.db')
 
 const messageSchema = mongoose.Schema({
-  room:{
+  room_info:{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Room'
+    ref: 'Room',
+    required: true
   },
   send_by:{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
+    required: true
   },
   message:{
     type: String,

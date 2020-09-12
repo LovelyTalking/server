@@ -3,7 +3,7 @@ const moment = require('moment');
 class IMessageDTO {
   constructor(message){
     this.__id = message._id;
-    this._room = message.room;
+    this._room_info = message.room_info;
     this._send_by = message.send_by;
     this._message = message.message;
     this._register_date = message.register_date;
@@ -13,10 +13,12 @@ class IMessageDTO {
 
   getSendMessageInfo(){
     return{
-      room: this._room,
+      room_info: this._room_info,
       send_by: this._send_by,
       message: this._message,
       register_date: moment().format()
     }
   }
 }
+
+module.exports = {IMessageDTO}

@@ -148,7 +148,7 @@ const findPostAndPushCorrection = async function(upload_info, res){
   try{
     let post = await this.findById({_id: upload_info.post_id}).where({del_ny:false});
     if(!post) throw new CustomError(500,"해당 포스트 정보가 없습니다.");
-    console.log(upload_info);
+    //console.log(upload_info);
 
     const correct_index =post.correction_object.push(upload_info);
     ++post.annotation_count;

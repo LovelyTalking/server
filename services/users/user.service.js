@@ -82,8 +82,8 @@ const loginUser = async (req,res)=>{
     const generated_token = await found_user.generateToken();
     if(generated_token.err) throw new CustomError(generated_token.status, "토큰을 생성하면서 에러")
     const user_with_token = generated_token.saved_user;
-
-    res.cookie("x_pla", user_with_token.token, {maxAge: 1000 * 3600 * 24, httpOnly: true, secure:false})
+    
+    return res.cookie("x_pla", user_with_token.token, {maxAge: 1000 * 3600 * 24, httpOnly: true, secure:false})
       .status(200)
       .json({
         login_success: true,

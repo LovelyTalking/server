@@ -22,7 +22,6 @@ const uploadCorrection = async (req, res)=>{
       if(!check_info[prop]) throw new CustomError(400, "해당 요청 데이터에 빈 데이터가 있습니다.")
 
     const upload_info = correctionDTO.getUploadCorrectionInfo();
-    console.log(upload_info);
     const correction_info = await Post.findPostAndPushCorrection(upload_info, res);
 
     if(correction_info.err) throw new CustomError(correction_info.status, "첨삭을 작성하는 곳에서 에러")
