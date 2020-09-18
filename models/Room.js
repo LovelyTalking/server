@@ -1,4 +1,5 @@
 const mongoose = require('../configs/mongo.db')
+const {MessageRoomModelContainer} = require('../containers/models/message_room.model.service')
 
 const roomSchema = mongoose.Schema({
   users:[{
@@ -48,5 +49,8 @@ const userStateSchema = mongoose.Schema({
 })
 
 const UserStateInRoom = mongoose.model('UserState', userStateSchema)
+
+userStateSchema.statics.turnOnUnreadCntMode = MessageRoomModelContainer.get('turn.on.unread.cnt.mode');
+userStateSchema.statics.turnOffUnreadCntMode = MessageRoomModelContainer.get('turn.off.unread.cnt.mode');
 
 module.exports = {Room, UserStateInRoom};

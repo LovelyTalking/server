@@ -297,19 +297,19 @@ const CommentValidationService = Service([
       if(comment.hasOwnProperty('_id') && !mongoID.check(comment._id))
         throw "comment_id is invalid"
 
-    if(comment.hasOwnProperty('post_id') && !mongoID.check(comment.post_id))
-      throw "post_id is invalid"
+      if(comment.hasOwnProperty('post_id') && !mongoID.check(comment.post_id))
+        throw "post_id is invalid"
 
-    if(comment.hasOwnProperty('page_index') && !integer.check(comment.page_index))
-      throw "page_index is invalid"
+      if(comment.hasOwnProperty('page_index') && !integer.check(comment.page_index))
+        throw "page_index is invalid"
 
-    if(comment.hasOwnProperty('page_size') && !integer.check(comment.page_size))
-      throw "page_size is invalid"
+      if(comment.hasOwnProperty('page_size') && !integer.check(comment.page_size))
+        throw "page_size is invalid"
 
-    if(comment.hasOwnProperty('comment_context') && !comment_context.check(comment.comment_context,500))
-      throw "comment_context is invalid"
+      if(comment.hasOwnProperty('comment_context') && !comment_context.check(comment.comment_context,500))
+        throw "comment_context is invalid"
 
-    return true;
+      return true;
     }catch(err){
       console.log(err);
       return false;
@@ -328,25 +328,25 @@ const CorrectionValidationService = Service([
       if(correction.hasOwnProperty('_id') && !mongoID.check(correction._id))
         throw "correction_id is invalid"
 
-    if(correction.hasOwnProperty('post_id') && !mongoID.check(correction.post_id))
-      throw "post_id is invalid"
+      if(correction.hasOwnProperty('post_id') && !mongoID.check(correction.post_id))
+        throw "post_id is invalid"
 
-    if(correction.hasOwnProperty('page_index') && !integer.check(correction.page_index))
-      throw "page_index is invalid"
+      if(correction.hasOwnProperty('page_index') && !integer.check(correction.page_index))
+        throw "page_index is invalid"
 
-    if(correction.hasOwnProperty('page_size') && !integer.check(correction.page_size))
-      throw "page_size is invalid"
+      if(correction.hasOwnProperty('page_size') && !integer.check(correction.page_size))
+        throw "page_size is invalid"
 
-    if(correction.hasOwnProperty('correction_context'))
-      correction.correction_context.some(context=>{
-        if(!text.check(context.text,1000) || !is_bool.check(context.modified)) throw "correction_context is invalid"
-      })
+      if(correction.hasOwnProperty('correction_context'))
+        correction.correction_context.some(context=>{
+          if(!text.check(context.text,1000) || !is_bool.check(context.modified)) throw "correction_context is invalid"
+        })
 
 
-    if(correction.hasOwnProperty('additional_text') && !text.check(correction.additional_text,2000))
-      throw "additional_text is invalid"
+      if(correction.hasOwnProperty('additional_text') && !text.check(correction.additional_text,2000))
+        throw "additional_text is invalid"
 
-    return true;
+      return true;
     }catch(err){
       console.log(err);
       return false;
@@ -356,12 +356,44 @@ const CorrectionValidationService = Service([
   return validateCorrectionRequestInfo;
 })
 
+const MessageValidationService = Service([
+  ValidateMongoID, ValidateText, ValidateInteger
+], (mongoID, text , integer)=>{
+  const validateMessageRequestInfo = function(message){
+    try{
+      if(message.hasOwnProperty('room_info') && !mongoID.check(message.room_info))
+        throw "room_info is invalid"
+
+      if(message.hasOwnProperty('user_id') && !mongoID.check(message.user_id))
+        throw "user_id is invalid"
+
+      if(message.hasOwnProperty('page_index') && !integer.check(message.page_index))
+        throw "page_index is invalid"
+
+      if(message.hasOwnProperty('page_size') && !integer.check(message.page_size))
+        throw "page_size is invalid"
+
+      if(message.hasOwnProperty('message') && !text.check(message.text))
+        throw "message text is invalid"
+
+      return true;
+    }catch(err){
+      console.log(err);
+      return false;
+    }
+  }
+
+  return validateMessageRequestInfo;
+})
+
 
 const validateUserRequest = Container.get(UserValidationService);
 const validatePostRequest = Container.get(PostValidationService);
 const validateCommentRequest = Container.get(CommentValidationService);
 const validateCorrectionRequest = Container.get(CorrectionValidationService);
+const validateMessageRequest = Container.get(MessageValidationService);
 
 module.exports ={
-  validateUserRequest, validatePostRequest,validateCommentRequest, validateCorrectionRequest
+  validateUserRequest, validatePostRequest, validateCommentRequest,
+  validateCorrectionRequest, validateMessageRequest
 }
