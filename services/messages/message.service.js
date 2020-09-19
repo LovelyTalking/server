@@ -179,7 +179,7 @@ const sendMessageInRoom = async(req,res)=>{
 
     const other_user_state = await UserStateInRoom.findOneAndUpdate(
       {room_info: room._id, user_info:other_user},
-      {$set: {is_out: true}},
+      {$set: {is_out: false}},
       {new: true, runValidators: true}
     );
     if(!other_user_state.isOnline){
@@ -188,8 +188,9 @@ const sendMessageInRoom = async(req,res)=>{
     }
 
     const message = new Message(message_info);
-    
+
     app.get('io').of('/message').to(req.params.room_info).emit('message', message);
+    await message.save();
     return res.status(200).json({send_message_success: true});
 
   }catch(err){

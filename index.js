@@ -8,7 +8,7 @@ const swaggerJSDoc = require('swagger-jsdoc')
 const swagger_option=  require('./configs/swagger');
 const dotenv = require('dotenv');
 const socketIO = require('./configs/socket');
-
+const cors = require('cors');
 dotenv.config();
 const swaggerSpec = swaggerJSDoc(swagger_option);
 

@@ -12,10 +12,6 @@ module.exports = (server, app)=>{
     const room = io.of('room');
     const message = io.of('message');
 
-    io.use((socket, next)=>{
-      authToken(socket.request, socket.request.res, next);
-    })
-
     room.on('connection', (socket)=>{
       console.log('room namespace entered')
       socket.on('disconnect',()=>{
@@ -23,13 +19,18 @@ module.exports = (server, app)=>{
       })
     })
 
-    message.on('connection', (socket, room, user)=>{
+    message.on('connection', (socket)=>{
       console.log('message namespace entered');
       const req = socket.request;
       const { header: {referer} } = req;
-      const room_id = referer
-        .split('/')[referer.split('/').lenth-1]
-        .replace(/\?.+/, '');
+
+      let room_id;
+      let user_id;
+
+      socket.on('input_join',(room, user)=>{
+        room_id = room;
+        user_id - user;
+      })
 
       //TODO : 안 읽은 메시지 개수 초기화 => unread_cnt mode off
       const turn_off_err = UserStateInRoom.turnOffUnreadCntMode(room, user);

@@ -8,28 +8,6 @@ const mongoose_type = require('mongoose').Types;
 
 const CustomError= ErrorContainer.get('custom.error');
 
-const findHashtagAndSave = async function(hashtags){
-  try{
-    for(const hashtag_name of hashtags){
-      const found_hashtag = await Hashtag.findOne({name:hashtag_name});
-      if(!found_hashtag){
-        const hashtagDTO = new IHashtagDTO();
-        hashtagDTO.name= hashtag_name;
-        const insert_hashtag = hashtagDTO.name;
-
-        const hashtag_doc = new Hashtag(insert_hashtag);
-        await hashtag_doc.save();
-      }
-    }
-    return {err:null};
-
-  }catch(err){
-    console.log(err);
-    if( err instanceof CustomError) return {err: err, status:400};
-    else return {err:err, status:500}
-  }
-}
-
 const turnOffUnreadCntMode = async function(room_id, user_id){
   try{
     let user_state = await UserStateInRoom.findOne({room_info: room_id, user_info: user_id});
