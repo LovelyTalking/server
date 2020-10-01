@@ -18,7 +18,8 @@ const roomSchema = mongoose.Schema({
     type: String
   }
 })
-const Room = mongoose.model('Room', roomSchema);
+
+
 
 const userStateSchema = mongoose.Schema({
   room_info:{
@@ -48,9 +49,12 @@ const userStateSchema = mongoose.Schema({
   }
 })
 
-const UserStateInRoom = mongoose.model('UserState', userStateSchema)
+
 
 userStateSchema.statics.turnOnUnreadCntMode = MessageRoomModelContainer.get('turn.on.unread.cnt.mode');
 userStateSchema.statics.turnOffUnreadCntMode = MessageRoomModelContainer.get('turn.off.unread.cnt.mode');
+roomSchema.statics.findRoomListIncludedMyUserInfo = MessageRoomModelContainer.get('find.roomlist.included.my.userinfo');
+const Room = mongoose.model('Room', roomSchema);
+const UserStateInRoom = mongoose.model('UserState', userStateSchema);
 
 module.exports = {Room, UserStateInRoom};

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const messageServices = require('../../services/messages/message.service')
 const { AuthContainer } = require('../../middlewares/auth/auth');
 // TODO: To make validate message middleware
-const { validateUser} = require('../../middlewares/validator/validator');
+const { validateMessage} = require('../../middlewares/validator/validator')
 
 const authToken = AuthContainer.get('auth.User');
 
@@ -46,7 +46,7 @@ router.use(authToken);
  *               items:
  *                 $ref: '#/definitions/DisplayRoomResponse'
 */
-router.get('/room/list',messageServices.displayRoomList);
+router.get('/room/list/:page_index/:page_size',validateMessage ,messageServices.displayRoomList);
 
 /**
  * @swagger
@@ -70,7 +70,7 @@ router.get('/room/list',messageServices.displayRoomList);
  *             created_room:
  *               $ref: '#/definitions/CreateRoomResponse'
 */
-router.get('/room/create/:user_id', messageServices.createMessageRoom);
+router.get('/room/create/:user_id',validateMessage, messageServices.createMessageRoom);
 
 
 /**
@@ -100,7 +100,7 @@ router.get('/room/create/:user_id', messageServices.createMessageRoom);
  *             message_list:
  *               $ref: '#/definitions/EnterRoomResponse'
 */
-router.get('/room/enter/:room_info', messageServices.enterMessageRoom);
+router.get('/room/enter/:room_info',validateMessage, messageServices.enterMessageRoom);
 
 
 /**
@@ -138,7 +138,7 @@ router.get('/room/enter/:room_info', messageServices.enterMessageRoom);
  *                 $ref: '#/definitions/DisplayMessageListResponse'
 */
 // page_index start 1 not 0
-router.get('/message/list/:room_info/:page_index/:page_size', messageServices.displayMessageList);
+router.get('/message/list/:room_info/:page_index/:page_size',validateMessage, messageServices.displayMessageList);
 
 
 /**
@@ -162,7 +162,7 @@ router.get('/message/list/:room_info/:page_index/:page_size', messageServices.di
  *             send_message_success:
  *               type: boolean
 */
-router.post('/message/send', messageServices.sendMessageInRoom);
+router.post('/message/send',validateMessage,  messageServices.sendMessageInRoom);
 
 // @desc 이 기능이 소켓 설정부분에서 처리 가능할 것으로 보인다
 router.get('/room/leave/:room_info', messageServices.leaveMessageRoom);
@@ -187,7 +187,7 @@ router.get('/room/leave/:room_info', messageServices.leaveMessageRoom);
  *             delete_room_success:
  *               type: boolean
 */
-router.get('/room/delete/:room_info', messageServices.deleteMessageRoom);
+router.get('/room/delete/:room_info',validateMessage, messageServices.deleteMessageRoom);
 
 module.exports = router;
 /**

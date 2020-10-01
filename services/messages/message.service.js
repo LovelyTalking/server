@@ -13,8 +13,8 @@ const checkReqInfo = (checkInfo,res)=>{
       if(checkInfo[prop] === undefined ) throw new CustomError(400,"요청 데이터에 빈 객체가 존재합니다.")
 
     const search_option = checkInfo;
-    const skip = search_option.page_size * search_option.page_index;
-    const limit = search_option.page_size;
+    const skip = Number(search_option.page_size * search_option.page_index);
+    const limit = Number(search_option.page_size);
 
     return [search_option, skip, limit];
   }catch(err){
@@ -28,24 +28,25 @@ const displayRoomList = async(req, res)=>{
   // @desc: req.param.room_id 에 해당하는 룸리스트들 조회( user_state의 is_out이 false이고, 업데이트 아이디가 최신인 순
   try{
     let user_id = req.user._id;
-    let checked_info;
-    let skip =0;
-    let limit = 0;
-    let check_info = { user_id, page_index: req.params.page_index, page_size: req.params.page_size };
-    [checked_info, skip, limit] = checkReqInfo(check_info, res);
 
-    user_id = mongoose_type.ObjectId(checked_info.user_id);
+    let check_info = { user_id, page_index: req.params.page_index, page_size: req.params.page_size };
+    const [search_option, skip, limit] = checkReqInfo(check_info, res);
+
+    user_id = mongoose_type.ObjectId(search_option.user_id);
 
     const user_states = await UserStateInRoom.find({user_info: user_id, is_out:false},'room_info');
     if(!user_states)
       return res.status(200).json({ display_room_list_success: true, room_list: []});
 
-    const room_ids = user_states.map(state=>{ return state.room_info;});
+    const room_ids = user_states.map(state=>{ return state.room_info; });
 
     const room_list = await Room
-      .find({users: user_id, _id: {$in:room_ids} },{sort: '-update_date', skip: skip, limit: limit})
+      .find({ _id: {$in:room_ids},users: user_id },'_id users user_state register_date update_date',{sort: '-update_date', skip: skip, limit: limit})
       .populate({path: 'users', populate: {path: 'users' },select:'_id name email profile_image'})
       .populate({path: 'user_state', populate:{path:'user_state'}});
+    //console.log(typeof UserStateInRoom.turnOffUnreadCntMode);
+    //const {err, room_list} = await Room.findRoomListIncludedMyUserInfo(search_option, skip, limit);
+    //if(err) throw new CustomError(400, "룸 리스트 조회 모델함수에서 에러");
 
     return res.status(200).json({ display_room_list_success: true, room_list});
   }catch(err){

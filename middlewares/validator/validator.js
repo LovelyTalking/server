@@ -1,5 +1,6 @@
 const {
-  validateUserRequest, validatePostRequest, validateCommentRequest,validateCorrectionRequest
+  validateUserRequest, validatePostRequest, validateCommentRequest,validateCorrectionRequest,
+  validateMessageRequest
 } = require('../../containers/validators/validator.service');
 const {ErrorContainer} = require('../../containers/errors/message.error');
 const EventEmitter = require('events');
@@ -70,6 +71,19 @@ const validateCorrection = async(req, res, next)=>{
   }
 }
 
+const validateMessage = async(req, res, next)=>{
+  try{
+    let correction = req.method === 'GET'? req.params : req.body;
+
+    let isValidate = await validateMessageRequest(correction);
+    if(!isValidate) throw new CustomError(400, "요청한 메시지 데이터 객체를 검증하는 과정에서 에러");
+
+    next();
+  }catch(err){
+    return errorEvent.emit('error',err, res);
+  }
+}
+
 module.exports = {
-  validateUser, validatePost, validateComment, validateCorrection
+  validateUser, validatePost, validateComment, validateCorrection, validateMessage
 }
