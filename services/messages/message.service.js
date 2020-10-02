@@ -190,7 +190,7 @@ const deleteMessageRoom = async(req, res)=>{
       const room_id = mongoose_type.ObjectId(req.params.room_info);
       const user_id = mongoose_type.ObjectId(req.user._id);
 
-      const room = await Room.findOne({_id:room_id, users:{$in:user_id}});
+      const room = await Room.findOne({_id:room_id, users:user_id});
       if(!room) throw new CustomError(400, "요청한 데이터에 해당하는 룸 정보가 없습니다.");
 
       const user_state = await UserStateInRoom.findOne({room_info:room_id, user_info:user_id, is_out:false});

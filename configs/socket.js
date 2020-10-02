@@ -28,21 +28,26 @@ module.exports = (server, app)=>{
       // //TODO : 안 읽은 메시지 개수 초기화 => unread_cnt mode off
       const turn_off_err = UserStateInRoom.turnOffUnreadCntMode(room_id, user_id);
 
-      if(turn_off_err) throw turn_off_err;
+      if(turn_off_err) {
+        socket.emit('message_error',turn_off_err);
+      }else{
+        socket.join(room_id);
+      }
 
-       socket.join(room_id);
 
       socket.on('disconnect',()=>{
         console.log('message namespace leaved')
         const turn_on_err = UserStateInRoom.turnOnUnreadCntMode(room_id, user_id);
-        if(turn_on_err) throw turn_on_err;
-
-        socket.leave(room_id);
+        if(turn_on_err) {
+          socket.emit('message_error',turn_on_err);
+        }else{
+          socket.leave(room_id);
+        }
         //TODO: user_state's isOnline: false => unread_cnt mode on
       })
     })
   }catch(err){
     console.log(err);
-
+    return;
   }
 }
