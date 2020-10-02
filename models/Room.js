@@ -1,5 +1,5 @@
 const mongoose = require('../configs/mongo.db')
-const {MessageRoomModelContainer} = require('../containers/models/message_room.model.service')
+const {RoomModelContainer} = require('../containers/models/room.model.service')
 
 const roomSchema = mongoose.Schema({
   users:[{
@@ -19,42 +19,10 @@ const roomSchema = mongoose.Schema({
   }
 })
 
+roomSchema.statics.findRoomListIncludedMyUserInfo = RoomModelContainer.get('find.roomlist.included.my.userinfo');
+roomSchema.statics.createRoomAndUserState = RoomModelContainer.get('create.room.user.state');
 
-
-const userStateSchema = mongoose.Schema({
-  room_info:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Room',
-    required: true
-  },
-  user_info:{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  is_out:{
-    type: Boolean,
-    default: false
-  },
-  room_out_date:{
-    type: String
-  },
-  unread_cnt:{
-    type: Number,
-    default: 0
-  },
-  is_online:{
-    type: Boolean,
-    default: false
-  }
-})
-
-
-
-userStateSchema.statics.turnOnUnreadCntMode = MessageRoomModelContainer.get('turn.on.unread.cnt.mode');
-userStateSchema.statics.turnOffUnreadCntMode = MessageRoomModelContainer.get('turn.off.unread.cnt.mode');
-roomSchema.statics.findRoomListIncludedMyUserInfo = MessageRoomModelContainer.get('find.roomlist.included.my.userinfo');
 const Room = mongoose.model('Room', roomSchema);
-const UserStateInRoom = mongoose.model('UserState', userStateSchema);
 
-module.exports = {Room, UserStateInRoom};
+
+module.exports = {Room};

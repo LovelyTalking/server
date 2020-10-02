@@ -1,4 +1,5 @@
 const mongoose = require('../configs/mongo.db')
+const {RoomModelContainer} = require('../containers/models/message.model.service')
 
 const messageSchema = mongoose.Schema({
   room_info:{
