@@ -54,7 +54,7 @@ const createMessageRoom = async(req, res)=>{
     const other_user_id = mongoose_type.ObjectId(req.params.user_id);
 
     const {err,created_room} = await Room.createRoomAndUserState([my_user_id,other_user_id]);
-  
+
     if(err) throw new CustomError(400,"메신저 룸을 생성하는 모델함수에서 에러");
 
     return res.status(200).json({create_room_success:true, created_room});
@@ -72,12 +72,12 @@ const enterMessageRoom = async (req, res)=>{
   try{
     const room_id = mongoose_type.ObjectId(req.params.room_info);
     const other_user = mongoose_type.ObjectId(req.params.user_id);
-    const my_user= mongoose_type.ObjectId(req.params._id);
-
-    const room = await Room.findOne({_id: room_id, users:[other_user, my_user]});
+    const my_user= mongoose_type.ObjectId(req.user._id);
+    console.log(room_id, other_user, my_user);
+    const room = await Room.findOne({_id: room_id, users:{$all: [other_user, my_user]}});
     if(!room) throw new CustomError(400,"요청에 해당하는 Room이 없습니다")
 
-    my_state = await UserStateInRoom.findOne({room_info:room_id, user_info: my_user});
+    let my_state = await UserStateInRoom.findOne({room_info:room_id, user_info: my_user});
     if(!my_state) throw new CustomError(400,"요청한 유저의 룸에 대한 상태 정보가 없습니다.");
 
     if(my_state.is_out)

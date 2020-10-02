@@ -100,7 +100,7 @@ router.get('/room/create/:user_id',validateMessage, messageServices.createMessag
  *             message_list:
  *               $ref: '#/definitions/EnterRoomResponse'
 */
-router.get('/room/enter/:room_info',validateMessage, messageServices.enterMessageRoom);
+router.get('/room/enter/:room_info/:user_id',validateMessage, messageServices.enterMessageRoom);
 
 
 /**
