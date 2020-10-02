@@ -21,25 +21,20 @@ module.exports = (server, app)=>{
 
     message.on('connection', (socket)=>{
       console.log('message namespace entered');
-      
+
       console.log(socket.request);
-      // let room_id;
-      // let user_id;
-      //
-      // socket.on('input_join',(room, user)=>{
-      //   room_id = room;
-      //   user_id - user;
-      // })
-      //
+      const {room_id, user_id, ...etc}= socket.handshake.query;
+
       // //TODO : 안 읽은 메시지 개수 초기화 => unread_cnt mode off
-      // const turn_off_err = UserStateInRoom.turnOffUnreadCntMode(room, user);
-      // if(turn_off_err) throw turn_off_err;
-      //
-      // socket.join(room_id);
+      const turn_off_err = UserStateInRoom.turnOffUnreadCntMode(room_id, user_id);
+
+      if(turn_off_err) throw turn_off_err;
+
+       socket.join(room_id);
 
       socket.on('disconnect',()=>{
         console.log('message namespace leaved')
-        const turn_on_err = UserStateInRoom.turnOnUnreadCntMode(room, user);
+        const turn_on_err = UserStateInRoom.turnOnUnreadCntMode(room_id, user_id);
         if(turn_on_err) throw turn_on_err;
 
         socket.leave(room_id);
