@@ -22,7 +22,7 @@ module.exports = (server, app)=>{
     message.on('connection', (socket)=>{
       console.log('message namespace entered');
 
-      console.log(socket.request);
+      //console.log(socket.request);
       const {room_id, user_id, ...etc}= socket.handshake.query;
 
       // //TODO : 안 읽은 메시지 개수 초기화 => unread_cnt mode off
