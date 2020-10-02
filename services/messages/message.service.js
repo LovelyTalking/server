@@ -116,21 +116,19 @@ const displayMessageList = async (req,res)=>{
   }
 }
 
+
 const sendMessageInRoom = async(req,res)=>{
   // input: room_id, user_id(req.user), message_text
   // model_func -> find room => find other user => get user/other_user state => if(!user_stat.isOnline) unread_cnt, if(!is_out)..
   // io.to(room_id).emit('message', message)
   try{
     req.body["send_by"]= req.user._id;
-
-    console.log(req.body);
     const message_info = new IMessageDTO(req.body).getSendMessageInfo();
 
     const room = await Room.findById({_id: message_info.room_info});
     if(!room) throw new CustomError(400, "요청한 룸 아이디에 대한 룸 정보가 없습니다.")
     let other_user;
     [other_user] = room.users.filter(id=> id !== message_info.send_by);
-    console.log(other_user);
 
     const other_user_state = await UserStateInRoom.findOneAndUpdate(
       {room_info: room._id, user_info:other_user},
@@ -158,8 +156,30 @@ const sendMessageInRoom = async(req,res)=>{
     else return res.status(500).send('');
   }
 }
-const leaveMessageRoom = async(req, res)=>{
+
+
+const deleteMessage = async(req, res)=>{
+  try{
+    const _id = mongoose_type.ObjectId(req.params._id);
+    const send_by = mongoose_type.ObjectId(req.user._id);
+    const {del_ny, delete_date, ...etc} = new IMessageDTO({_id, send_by}).getDeleteMessageInfo();
+
+    const deleted_msg = await Message.findOneAndUpdate(
+      {_id:_id, send_by:send_by},
+      {$set: {del_ny:del_ny, delete_date:delete_date}},
+      {new:true, runValidators:true}
+    );
+    if(!deleted_msg) throw new CustomError(400,"메시지를 요청하는 데이터가 올바르지 않습니다.");
+
+    return res.status(200).json({delete_message_success: true});
+
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return res.status(err.status).send('');
+    else return res.status(500).send('');
+  }
 }
+
 
 const deleteMessageRoom = async(req, res)=>{
   // input: room_id, user_id(req.user._id)
@@ -167,8 +187,8 @@ const deleteMessageRoom = async(req, res)=>{
   // if(room) find user_state about room_id, user_id
   // if(is_out === false) is_out =true, out_date = now();
   try{
-      const room_id = mongoose_type.ObjectedID(req.params.room_info);
-      const user_id = mongoose_type.ObjectedID(req.user._id);
+      const room_id = mongoose_type.ObjectId(req.params.room_info);
+      const user_id = mongoose_type.ObjectId(req.user._id);
 
       const room = await Room.findOne({_id:room_id, users:{$in:user_id}});
       if(!room) throw new CustomError(400, "요청한 데이터에 해당하는 룸 정보가 없습니다.");
@@ -189,6 +209,6 @@ const deleteMessageRoom = async(req, res)=>{
 }
 
 module.exports = {
-  displayRoomList, createMessageRoom, enterMessageRoom, displayMessageList, sendMessageInRoom,
-  leaveMessageRoom, deleteMessageRoom
+  displayRoomList, createMessageRoom, enterMessageRoom, displayMessageList,
+   sendMessageInRoom, deleteMessageRoom, deleteMessage
 }

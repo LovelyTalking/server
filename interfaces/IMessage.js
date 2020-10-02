@@ -20,6 +20,15 @@ class IMessageDTO {
       register_date: moment().format()
     }
   }
+
+  getDeleteMessageInfo(){
+    return{
+      _id: this.__id,
+      send_by: this._send_by,
+      del_ny: true,
+      delete_date: moment().format()
+    }
+  }
 }
 
 module.exports = {IMessageDTO}

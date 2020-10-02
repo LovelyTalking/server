@@ -165,7 +165,28 @@ router.get('/message/list/:room_info/:page_index/:page_size',validateMessage, me
 router.post('/message/send',validateMessage,  messageServices.sendMessageInRoom);
 
 // @desc 이 기능이 소켓 설정부분에서 처리 가능할 것으로 보인다
-router.get('/room/leave/:room_info', messageServices.leaveMessageRoom);
+
+/**
+ * @swagger
+ * /message/delete/{_id}:
+ *   post:
+ *     summary: delete message room
+ *     tags: [Message Room]
+ *     parameters:
+ *     - in: "path"
+ *       name: "_id"
+ *       required: true
+ *       schema:
+ *         type: string
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *             delete_room_success:
+ *               type: boolean
+*/
+router.get('/message/delete/:_id', messageServices.deleteMessage);
 
 /**
  * @swagger
