@@ -373,7 +373,7 @@ const MessageValidationService = Service([
       if(message.hasOwnProperty('page_size') && !integer.check(message.page_size))
         throw "page_size is invalid"
 
-      if(message.hasOwnProperty('message') && !text.check(message.text))
+      if(message.hasOwnProperty('message') && !text.check(message.message,4000))
         throw "message text is invalid"
 
       return true;

@@ -1,5 +1,5 @@
 const SocketIO = require('socket.io');
-const {UserStateInRoom} = require('../models/Room');
+const {UserStateInRoom} = require('../models/UserState');
 
 module.exports = (server, app)=>{
   try{

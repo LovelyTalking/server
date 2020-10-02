@@ -142,9 +142,13 @@ const sendMessageInRoom = async(req,res)=>{
       await other_user_state.save();
     }
 
-    const message = new Message(message_info);
+    room.update_date = message_info.register_date;
+    await room.save();
 
-    app.get('io').of('/message').to(req.params.room_info).emit('message', message);
+    const message = new Message(message_info);
+    if(!message) throw new CustomError(400,"해당 요청 메시지의 데이터 구성이 올바르지 않습니다.")
+
+    req.app.get('io').of('/message').to(req.params.room_info).emit('message', message);
     await message.save();
     return res.status(200).json({send_message_success: true});
 
