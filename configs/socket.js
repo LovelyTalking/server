@@ -22,15 +22,17 @@ module.exports = (server, app)=>{
     message.on('connection', (socket)=>{
       console.log('message namespace entered');
 
-      //console.log(socket.request);
       const {room_id, user_id, ...etc}= socket.handshake.query;
 
-      // //TODO : 안 읽은 메시지 개수 초기화 => unread_cnt mode off
       const turn_off_err = UserStateInRoom.turnOffUnreadCntMode(room_id, user_id);
 
+      // message 네임스페이스에 연결할 때 룸, 유저 정보를 받아오는가 
+      console.log(room_id, user_id);
       if(turn_off_err) {
-        socket.emit('message_error',turn_off_err);
-      }else{
+        socket.emit('message_error',"유저상태의 읽지않은 메시지 수 초기화 및 온라인 전환 업데이트 오류");
+        console.log(turn_off_err);
+      }else
+        console.log('able to join room');
         socket.join(room_id);
       }
 
@@ -39,11 +41,12 @@ module.exports = (server, app)=>{
         console.log('message namespace leaved')
         const turn_on_err = UserStateInRoom.turnOnUnreadCntMode(room_id, user_id);
         if(turn_on_err) {
-          socket.emit('message_error',turn_on_err);
+          socket.emit('message_error',"유저상태의 읽지않은 메시지 수 초기화 및 오프라인 전환 업데이트 오류");
+          console.log(turn_on_err);
         }else{
           socket.leave(room_id);
         }
-        //TODO: user_state's isOnline: false => unread_cnt mode on
+
       })
     })
   }catch(err){

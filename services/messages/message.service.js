@@ -103,7 +103,7 @@ const displayMessageList = async (req,res)=>{
     [check_info, skip, limit] = await checkReqInfo(check_info);
 
     const message_list = await Message.find(
-      {room_info:room_info},
+      {room_info:room_info, del_ny: false},
       "_id send_by message register_date",
       {sort:'-register_date',skip:skip, limit: limit}
     )
@@ -146,7 +146,7 @@ const sendMessageInRoom = async(req,res)=>{
     const message = new Message(message_info);
     if(!message) throw new CustomError(400,"해당 요청 메시지의 데이터 구성이 올바르지 않습니다.")
 
-    req.app.get('io').of('/message').to(req.params.room_info).emit('message', message);
+    req.app.get('io').of('/message').to(req.body.room_info).emit('message', message);
     await message.save();
     return res.status(200).json({send_message_success: true});
 
