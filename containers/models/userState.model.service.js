@@ -19,8 +19,7 @@ const turnOffUnreadCntMode = async function(room_id, user_id){
 
     await user_state.save();
 
-    let err;
-    return err = null;
+    return null;
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return err;
@@ -38,8 +37,7 @@ const turnOnUnreadCntMode = async function(room_id, user_id){
 
     await user_state.save();
 
-    let err;
-    return err = null;
+    return null;
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return err;

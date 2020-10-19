@@ -38,7 +38,6 @@ const findRoomListIncludedMyUserInfo = async function(search_option, skip, limit
 const createRoomAndUserState = async function(user){
   try{
     const [my_user_id, other_user_id] = user;
-    console.log(my_user_id, other_user_id);
 
     const found_room = await this.findOne({users: {$all:[my_user_id, other_user_id]}});
 
@@ -89,7 +88,62 @@ const createRoomAndUserState = async function(user){
   }
 }
 
+const findRoomAndUserState = async function(search_info){
+  try{
+    const {room_id, other_user, my_user} = search_info;
+    const room = await this.findOne({_id: room_id, users:{$all: [other_user, my_user]}});
+    if(!room) throw new CustomError(400, "요청에 해당하는 룸이 없습니다.");
+
+    let my_state = await UserStateInRoom.findOne({room_info:room_id, user_info: my_user});
+    if(!my_state) throw new CustomError(400,"요청한 유저의 룸에 대한 상태 정보가 없습니다.");
+
+    if(my_state.is_out){
+      my_state.is_out = false;
+      my_state = await my_state.save();
+    }
+
+    return {err:null};
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return err;
+    else return err;
+  }
+}
+
+const updateRoomAndUserStateBeforeSendingMessage = async function(update_info){
+  try{
+    const {room_info, send_by, register_date} = update_info;
+    const room = await this.findById({_id: room_info});
+    if(!room) throw new CustomError(400, "요청한 룸 아이디에 대한 룸 정보가 없습니다.")
+
+    const [other_user] = room.users.filter(id=> String(id) !== String(send_by));
+    const other_user_state = await UserStateInRoom.findOneAndUpdate(
+      {room_info: room._id, user_info:other_user},
+      {$set: {is_out: false}},
+      {new: true, runValidators: true}
+    );
+
+    if(!other_user_state) throw new CustomError(400, "요청한 유저의 룸에 대한 상태 정보가 없습니다.")
+    if(!other_user_state.is_online){
+      ++other_user_state.unread_cnt;
+      await other_user_state.save();
+    }
+
+    room.update_date = register_date;
+    await room.save();
+    return {err:null};
+  }catch(err){
+    console.log(err);
+    if( err instanceof CustomError) return err;
+    else return err;
+  }
+}
+
+
+
 RoomModelContainer.set('find.roomlist.included.my.userinfo',findRoomListIncludedMyUserInfo);
 RoomModelContainer.set('create.room.user.state',createRoomAndUserState);
+RoomModelContainer.set('find.room.user.state',findRoomAndUserState);
+RoomModelContainer.set('update.room.user.state.before.sending.message',updateRoomAndUserStateBeforeSendingMessage);
 
 module.exports= {RoomModelContainer}

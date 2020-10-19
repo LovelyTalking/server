@@ -22,7 +22,8 @@ const messageSchema = mongoose.Schema({
     type: String
   },
   del_ny :{
-    type: Boolean
+    type: Boolean,
+    default: false
   },
   delete_date:{
     type: String

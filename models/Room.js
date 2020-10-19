@@ -21,6 +21,8 @@ const roomSchema = mongoose.Schema({
 
 roomSchema.statics.findRoomListIncludedMyUserInfo = RoomModelContainer.get('find.roomlist.included.my.userinfo');
 roomSchema.statics.createRoomAndUserState = RoomModelContainer.get('create.room.user.state');
+roomSchema.statics.findRoomAndUserState = RoomModelContainer.get('find.room.user.state');
+roomSchema.statics.updateRoomAndUserStateBeforeSendingMessage = RoomModelContainer.get('update.room.user.state.before.sending.message');
 
 const Room = mongoose.model('Room', roomSchema);
 
