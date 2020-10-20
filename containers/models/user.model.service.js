@@ -102,7 +102,7 @@ const findVerifiedUser = async function(token){
     let user = this;
 
     const decoded = await jwt.verify(token, secret);
-    const found_user = await user.findOne({"_id" :decoded.id, "token": token, "auth_email_verified":true});
+    const found_user = await user.findOne({"_id" :decoded.id, "auth_email_verified":true});
     if(!found_user) throw new CustomError(500,"토큰에 해당하는 유저를 찾을 수 없습니다.");
 
     return {err:null, user: found_user};

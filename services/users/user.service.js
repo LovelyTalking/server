@@ -82,7 +82,7 @@ const loginUser = async (req,res)=>{
     const generated_token = await found_user.generateToken();
     if(generated_token.err) throw new CustomError(generated_token.status, "토큰을 생성하면서 에러")
     const user_with_token = generated_token.saved_user;
-    
+
     return res.cookie("x_pla", user_with_token.token, {maxAge: 1000 * 3600 * 24, httpOnly: true, secure:false})
       .status(200)
       .json({
@@ -98,11 +98,7 @@ const loginUser = async (req,res)=>{
 
 const logoutUser = async (req,res)=>{
   try{
-    if(!req.cookies.x_pla) throw new CustomError(400, "쿠키 정보가 없습니다.")
-
-    const updated_user = await User.findOneAndUpdate({token : req.cookies.x_pla}, {$set : {token: ""}}, {new: true,runValidators:true});
-
-    if(!updated_user) throw new CustomError(400, "토큰에 해당하는 유저가 없습니다.")
+    if(!req.cookies.x_pla) throw new CustomError(400, "쿠키 정보가 없습니다.");
 
     return res.status(200).clearCookie('x_pla').json({
       logout_success: true,
