@@ -62,7 +62,9 @@ const enterMessageRoom = async (req, res)=>{
       {sort: '-register_date',limit:5}
     );
 
-    return res.status(200).json({ enter_room_success: true, message_list});
+    const reversed_list = await message_list.reverse();
+
+    return res.status(200).json({ enter_room_success: true, message_list:reversed_list});
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return res.status(err.status).send('');
@@ -84,7 +86,9 @@ const displayMessageList = async (req,res)=>{
       {sort:'-register_date',skip:skip, limit: limit}
     )
 
-    return res.status(200).json({ display_message_list_success: true, message_list});
+    const reversed_list = await message_list.reverse();
+
+    return res.status(200).json({ display_message_list_success: true, message_list: reversed_list});
   }catch(err){
     console.log(err);
     if(err instanceof CustomError) return res.status(err.stats).send('');

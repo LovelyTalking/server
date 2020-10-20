@@ -82,8 +82,8 @@ const generateToken = async function(){
 
 
 const findByToken = async function(token, res){
-  let user = this;
   try{
+    let user = this;
     const decoded = await jwt.verify(token, secret);
 
     const found_user = await user.findOne({"_id" :decoded.id, "token": token});
