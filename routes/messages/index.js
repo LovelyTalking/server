@@ -67,6 +67,8 @@ router.get('/room/list/:page_index/:page_size',validateMessage ,messageServices.
  *           properties:
  *             create_room_success:
  *               type: boolean
+ *             is_existed_room:
+ *               type: boolean
  *             created_room:
  *               $ref: '#/definitions/CreateRoomResponse'
 */

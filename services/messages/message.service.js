@@ -1,11 +1,13 @@
 const { Room } = require('../../models/Room');
 const { UserStateInRoom } = require('../../models/UserState');
 const { Message }  = require('../../models/Message');
+const { User } = require('../../models/User');
 const { IRoomDTO } = require('../../interfaces/IRoom');
 const { IUserStateInRoomDTO} = require('../../interfaces/IUserState');
-const { IMessageDTO} = require('../../interfaces/IMessage')
+const { IMessageDTO} = require('../../interfaces/IMessage');
 const mongoose_type = require('mongoose').Types;
 const {ErrorContainer} = require('../../containers/errors/message.error');
+
 
 const CustomError = ErrorContainer.get('custom.error');
 
@@ -35,11 +37,14 @@ const createMessageRoom = async(req, res)=>{
   try{
     const my_user_id = mongoose_type.ObjectId(req.user._id);
     const other_user_id = mongoose_type.ObjectId(req.params.user_id);
+    // other_user_id 존재여부
+    const found_other_user = await User.findById(other_user_id).exec();
+    if(!found_other_user) throw new CustomError(400, "올바른 상대방 id가 아닙니다.")
 
-    const {err,created_room} = await Room.createRoomAndUserState([my_user_id,other_user_id]);
+    const {err,is_existed_room, created_room} = await Room.createRoomAndUserState([my_user_id,other_user_id]);
     if(err) throw new CustomError(err.status || 500,"메신저 룸을 생성하는 모델함수에서 에러");
 
-    return res.status(200).json({create_room_success:true, created_room});
+    return res.status(200).json({create_room_success:true,is_existed_room, created_room});
   }catch(err){
     console.log(err);
     if( err instanceof CustomError) return res.status(err.status).send('');

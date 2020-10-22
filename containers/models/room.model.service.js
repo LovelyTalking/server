@@ -51,7 +51,7 @@ const createRoomAndUserState = async function(user){
         await my_state.save();
       }
 
-      return {err: null, created_room: found_room};
+      return {err: null,is_existed_room: true, created_room: found_room};
     }
     else{
       const users_in_room = { users: [my_user_id, other_user_id] };
@@ -78,7 +78,7 @@ const createRoomAndUserState = async function(user){
 
       await room.save();
 
-      return {err:null, created_room};
+      return {err:null,is_existed_room: false,  created_room};
 
     }
   }catch(err){
