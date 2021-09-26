@@ -22,7 +22,6 @@ Server for the PLaCon
 1. Message API
 
 ### 🚨 Notice
-- 현재 진행중이라는 점!
 - 윈도우에서는 socket.io의 eiows가 적용되지 않습니다.
 - dotenv를 통해 .env파일을 불러옵니다. 하지만 github에 .env파일을 올리지 않습니다
   - .env에는 mongoDB url, google email auth id/secret... 코드에 노출되지 않아야할 요소들을 담았습니다.
